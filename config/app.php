@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
+use Modules\ElevenLabs\Providers\ElevenLabsProvider;
 use Modules\Groq\Providers\GroqProvider;
 
 return [
@@ -172,6 +175,7 @@ return [
 
         // modules providers
         GroqProvider::class,
+        ElevenLabsProvider::class,
     ])->toArray(),
 
     /*
