@@ -24,7 +24,10 @@ final class ChatController extends Controller
                 return response()->json(['error' => $th->errors()], 412);
             }
 
-            return response()->json(['error' => $th->getMessage()], $th->getCode());
+            return response()->json(
+                ['error' => $th->getMessage()],
+                $th->getCode() ? $th->getCode() : 500
+            );
         }
     }
 }
