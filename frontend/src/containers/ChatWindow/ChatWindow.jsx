@@ -6,7 +6,10 @@ import {
   CardHeader,
   Divider,
   TextField,
-  InputAdornment
+  Paper,
+  Typography,
+  Stack,
+  IconButton
 } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import * as yup from "yup";
@@ -21,40 +24,80 @@ function ChatWindow() {
   });
   const chatBot = useChatBot(handleChatBotResponse);
 
-  const { register, handleSubmit } = useForm({
+  const { register, handleSubmit, reset } = useForm({
     resolver: yupResolver(inputSchema)
   });
 
   function handleChatBotResponse(data) {
     console.log(data);
+    reset();
   }
 
   const onSubmit = ({ chat }) => {
-    setHistory([...history, { user: chat }]);
-    chatBot.mutate(chat);
+    setHistory([
+      ...history,
+      { role: "user", content: chat, timeStamp: Date.now() }
+    ]);
+    chatBot.mutate({ role: "user", content: chat });
   };
 
   return (
     <Card sx={{ width: 300 }}>
       <CardHeader avatar={<SmartToyIcon />} title="ChatBot" />
       <Divider />
-      <CardContent sx={{ height: 200 }}></CardContent>
+      <CardContent sx={{ height: 200 }}>
+        <Stack spacing={2}>
+          {history.map((item) => {
+            if (item.role === "user") {
+              return (
+                <Paper
+                  key={item.content}
+                  sx={{ p: 1, background: "lightblue", ml: 3 }}
+                >
+                  <Typography
+                    variant="body1"
+                    color="text.secondary"
+                    textAlign="right"
+                  >
+                    {item.content}
+                  </Typography>
+                </Paper>
+              );
+            } else {
+              return (
+                <Paper
+                  key={item.timeStamp}
+                  sx={{ p: 1, background: "whitesmoke", mr: 3 }}
+                >
+                  <Typography variant="body1" color="text.secondary">
+                    {item.content}
+                  </Typography>
+                </Paper>
+              );
+            }
+          })}
+        </Stack>
+      </CardContent>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <TextField
-            {...register("chat")}
-            size="small"
-            fullWidth
-            placeholder="Type your message here..."
-            variant="outlined"
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <ArrowForwardIcon />
-                </InputAdornment>
-              )
-            }}
-          />
+          {chatBot.isLoading ? (
+            <Typography>Loading...</Typography>
+          ) : (
+            <TextField
+              {...register("chat")}
+              size="small"
+              fullWidth
+              placeholder="Type your message here..."
+              variant="outlined"
+              InputProps={{
+                endAdornment: (
+                  <IconButton type="submit">
+                    <ArrowForwardIcon />
+                  </IconButton>
+                )
+              }}
+            />
+          )}
         </form>
       </CardContent>
     </Card>

@@ -5,11 +5,12 @@ import { useMutation } from "@tanstack/react-query";
 export const useChatBot = (handleChatBotResponse) => {
   return useMutation({
     mutationKey: ["chatbot"],
-    mutationFn: (chat) => {
+    mutationFn: (message) => {
       return api({
         method: "post",
         url: endpoints.groq,
-        data: { messages: [{ role: "user", content: chat }] }
+        param: { chat_role: "chatbot" },
+        data: { messages: [message] }
       });
     },
     onSettled: handleChatBotResponse

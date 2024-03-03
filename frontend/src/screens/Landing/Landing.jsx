@@ -1,6 +1,7 @@
 import {
   Box,
   Container,
+  IconButton,
   InputAdornment,
   Stack,
   TextField,
@@ -44,9 +45,9 @@ function Landing() {
             placeholder="Search..."
             InputProps={{
               startAdornment: (
-                <InputAdornment position="start">
+                <IconButton type="submit">
                   <SearchIcon />
-                </InputAdornment>
+                </IconButton>
               )
             }}
           />
