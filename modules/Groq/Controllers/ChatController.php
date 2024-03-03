@@ -7,6 +7,7 @@ namespace Modules\Groq\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Modules\Groq\DTO\ChatCompletionPayload;
 use Modules\Groq\Services\ChatCompletion;
 use Throwable;
@@ -18,7 +19,9 @@ final class ChatController extends Controller
         try {
             $validated = ChatCompletionPayload::validateAndCreate($request->all());
 
-            return response()->json($chatCompletion->complete($validated, $request->get('chat_role', 'chatbot')));
+            $response = $chatCompletion->complete($validated, $request->get('chat_role', 'chatbot'));
+
+            return response()->json(Arr::first($response['choices'])['message'] ?? []);
         } catch (Throwable $th) {
             if ($th instanceof \Illuminate\Validation\ValidationException) {
                 return response()->json(['error' => $th->errors()], 412);
