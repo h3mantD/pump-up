@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', fn (Request $request) => $request->user());
 
 Route::group([
+    'prefix' => 'v1',
+    'as' => 'v1.',
 ], function (): void {
     require __DIR__ . '/api/routes.php';
 });

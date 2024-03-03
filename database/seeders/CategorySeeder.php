@@ -26,6 +26,7 @@ final class CategorySeeder extends Seeder
         foreach ($categories as $category) {
             \App\Models\Category::create([
                 'name' => $category,
+                'slug' => \Illuminate\Support\Str::slug($category),
             ]);
         }
     }

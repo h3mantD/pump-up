@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -34,7 +35,7 @@ final class ProductsController extends Controller
 
     public function show(Product $product): JsonResponse
     {
-        return response()->json($product);
+        return response()->json(['product' => $product]);
     }
 
     public function getReviews(Product $product, Request $request): JsonResponse

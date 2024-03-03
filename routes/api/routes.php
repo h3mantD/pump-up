@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('v1')->as('v1.')->group(function (): void {
+Route::prefix('products')->as('products.')->group(function (): void {
     require __DIR__ . '/v1/products/routes.php';
+});
+
+Route::prefix('categories')->as('categories.')->group(function (): void {
+    require __DIR__ . '/v1/categories/routes.php';
 });
