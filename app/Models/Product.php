@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Codewithkyrian\ChromaDB\Concerns\HasChromaCollection;
 use Codewithkyrian\ChromaDB\Contracts\ChromaModel;
+use Codewithkyrian\ChromaDB\Embeddings\HuggingFaceEmbeddingServerFunction;
 use Codewithkyrian\ChromaDB\Embeddings\JinaEmbeddingFunction;
 use Digikraaft\ReviewRating\Traits\HasReviewRating;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -27,22 +28,34 @@ final class Product extends Model implements ChromaModel
         'category_id',
     ];
 
+    protected $appends = [
+        'category_name',
+    ];
+
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function getCategoryNameAttribute()
+    {
+        return $this->category->name;
     }
 
     public function documentFields(): array
     {
         return [
             'name',
+            'description',
             'category_id',
+            'category_name',
         ];
     }
 
-    public function embeddingFunction(): JinaEmbeddingFunction
+    public function embeddingFunction(): HuggingFaceEmbeddingServerFunction|JinaEmbeddingFunction
     {
         return new JinaEmbeddingFunction(config('chromadb.jina_api_key'));
+        // return new HuggingFaceEmbeddingServerFunction(config("chromadb.hf_api_key"), config("chromadb.hf_model_name"));
     }
 
     public function collectionName(): string
@@ -54,8 +67,9 @@ final class Product extends Model implements ChromaModel
     {
         return [
             'id',
-            'name',
+            'description',
             'category_id',
+            'category_name',
         ];
     }
 
@@ -63,8 +77,9 @@ final class Product extends Model implements ChromaModel
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
+            'description' => $this->description,
             'category_id' => $this->category_id,
+            'category_name' => $this->category_name,
         ];
     }
 }

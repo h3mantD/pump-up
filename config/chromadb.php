@@ -14,6 +14,8 @@ return [
     'host' => env('CHROMA_HOST', 'localhost'),
 
     'jina_api_key' => env('JINA_ACESS_TOKEN'),
+    "hf_api_key" => env("HF_ACCESS_TOKEN"),
+    "hf_model_name" => "mistralai/Mixtral-8x7B-Instruct-v0.1",
 
     /*
      |--------------------------------------------------------------------------
