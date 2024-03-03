@@ -32,6 +32,11 @@ final class ProductsController extends Controller
         return response()->json($products->paginate($pageSize));
     }
 
+    public function show(Product $product): JsonResponse
+    {
+        return response()->json($product);
+    }
+
     public function getReviews(Product $product, Request $request): JsonResponse
     {
         $pageSize = $request->get('page_size', 5);

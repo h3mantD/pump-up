@@ -11,4 +11,5 @@ Route::group([
 ], function (): void {
     Route::get('/', [ProductsController::class, 'index'])->name('index');
     Route::get('/{product}/reviews', [ProductsController::class, 'getReviews'])->name('reviews');
+    Route::get('/{product}', [ProductsController::class, 'show'])->name('show');
 });
