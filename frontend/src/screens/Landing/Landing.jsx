@@ -1,11 +1,15 @@
 import {
+  Box,
   Container,
+  Grid,
   InputAdornment,
   Stack,
   TextField,
   Typography
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import d from "@/data/d.json";
+import Product from "@/components/Product/Product.jsx";
 
 function Landing() {
   return (
@@ -38,6 +42,16 @@ function Landing() {
           }}
         />
       </Stack>
+
+      <Grid container spacing={10}>
+        {d.map((item) => (
+          <Grid key={d.id} item xs={12} sm={6} md={4}>
+            <Product item={item} />
+          </Grid>
+        ))}
+      </Grid>
+
+      <Stack direction="row" spacing={2} flexWrap="wrap"></Stack>
     </Container>
   );
 }

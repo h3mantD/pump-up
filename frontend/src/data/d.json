@@ -1,0 +1,133 @@
+[
+  {
+    "id": 1,
+    "name": "Dumbells",
+    "img": "https://picsum.photos/id/1/250/250",
+    "description": "A pair of adjustable dumbells for strength training",
+    "price": 100,
+    "review": [
+      {
+        "id": "1",
+        "userName": "JohnDoe123",
+        "content": "Great quality dumbells for the price!"
+      },
+      {
+        "id": "2",
+        "userName": "JaneDoe456",
+        "content": "Very sturdy and easy to adjust weight."
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Kettlebells",
+    "img": "https://picsum.photos/id/2/250/250",
+    "description": "Kettlebells in various weights for full body workouts",
+    "price": 50,
+    "review": [
+      {
+        "id": "1",
+        "userName": "FitnessGuru",
+        "content": "I love using kettlebells for HIIT workouts!"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Resistance Bands",
+    "img": "https://picsum.photos/id/3/250/250",
+    "description": "Resistance bands in multiple resistances for strength training",
+    "price": 20,
+    "review": [
+      {
+        "id": "1",
+        "userName": "BandLover123",
+        "content": "Great portable option for resistance training."
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Foam Roller",
+    "img": "https://picsum.photos/id/4/250/250",
+    "description": "Foam roller for self-myofascial release and mobility",
+    "price": 15,
+    "review": [
+      {
+        "id": "1",
+        "userName": "Yogi89",
+        "content": "Essential for stretching and recovery!"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "name": "Jump Rope",
+    "img": "https://picsum.photos/id/5/250/250",
+    "description": "Jump rope for cardio and agility training",
+    "price": 10,
+    "review": [
+      {
+        "id": "1",
+        "userName": "CardioKing",
+        "content": "Great for getting your heart rate up!"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "name": "Exercise Mat",
+    "img": "https://picsum.photos/id/6/250/250",
+    "description": "Cushioned exercise mat for floor workouts",
+    "price": 25,
+    "review": [
+      {
+        "id": "1",
+        "userName": "HomeGymLover456",
+        "content": "Nice thick mat, perfect for home workouts."
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "name": "Medicine Ball",
+    "img": "https://picsum.photos/id/7/250/250",
+    "description": "Weighted medicine ball for strength and power",
+    "price": 30,
+    "review": [
+      {
+        "id": "1",
+        "userName": "GymRat123",
+        "content": "Challenging to incorporate into strength routines."
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "name": "Weight Bench",
+    "img": "https://picsum.photos/id/8/250/250",
+    "description": "Adjustable weight bench for barbell training",
+    "price": 200,
+    "review": [
+      {
+        "id": "1",
+        "userName": "BarbellPro",
+        "content": "Sturdy bench for heavy lifts."
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "name": "Pull-up Bar",
+    "img": "https://picsum.photos/id/9/250/250",
+    "description": "Pull-up and dip station for bodyweight training",
+    "price": 80,
+    "review": [
+      {
+        "id": "1",
+        "userName": "BodyweightMaster",
+        "content": "Great for pull-ups and dips at home!"
+      }
+    ]
+  }
+]
