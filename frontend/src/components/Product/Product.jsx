@@ -11,14 +11,19 @@ function Product({ item }) {
         <CardMedia
           component="img"
           height="250"
-          image={item.img}
+          image={`https://picsum.photos/id/${item.id}/250/250`}
           alt={item.name}
         />
         <CardContent>
           <Typography gutterBottom variant="h5" component="div">
             {item.name}
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            noWrap
+            title={item.description}
+          >
             {item.description}
           </Typography>
         </CardContent>

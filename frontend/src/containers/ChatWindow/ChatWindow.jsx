@@ -9,7 +9,7 @@ import {
 
 function ChatWindow() {
   return (
-    <Card>
+    <Card sx={{ width: 300 }}>
       <CardHeader avatar={<SmartToyIcon />} title="ChatBot" />
       <Divider />
       <CardContent sx={{ height: 200 }}></CardContent>
