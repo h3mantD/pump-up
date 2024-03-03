@@ -8,6 +8,9 @@ const theme = createTheme({
       dark: "#ffffff",
       contrastText: "#ffffff"
     }
+  },
+  typography: {
+    fontFamily: '"Oswald", sans-serif'
   }
 });
 

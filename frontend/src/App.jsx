@@ -13,7 +13,6 @@ function App() {
         <Route path="/contact-us" element={<h1>contact us</h1>} />
         <Route path="/product/:id" element={<ProductDetail />} />
       </Routes>
-      <h1>footer</h1>
     </>
   );
 }
