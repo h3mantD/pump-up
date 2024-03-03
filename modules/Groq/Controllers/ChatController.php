@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Modules\Groq\DTO\ChatCompletionPayload;
+use Modules\Groq\Enums\Role;
 use Modules\Groq\Services\ChatCompletion;
 use Throwable;
 
@@ -21,7 +22,10 @@ final class ChatController extends Controller
 
             $response = $chatCompletion->complete($validated, $request->get('chat_role', 'chatbot'));
 
-            return response()->json(Arr::first($response['choices'])['message'] ?? []);
+            return response()->json(Arr::first($response['choices'])['message'] ?? [
+                'role' => Role::ASSISTANT,
+                'content' => 'I am sorry, I could not understand that. Could you please rephrase?',
+            ]);
         } catch (Throwable $th) {
             if ($th instanceof \Illuminate\Validation\ValidationException) {
                 return response()->json(['error' => $th->errors()], 412);
