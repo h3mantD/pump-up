@@ -14,3 +14,17 @@ export const useProducts = () => {
     select: (data) => data.data.data
   });
 };
+
+export const useProduct = (id) => {
+  return useQuery({
+    queryKey: ["product", id],
+    queryFn: () => {
+      return api({
+        method: "get",
+        url: endpoints.product(id)
+      });
+    },
+    enabled: !!id,
+    select: (data) => data.data.product
+  });
+};

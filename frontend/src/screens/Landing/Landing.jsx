@@ -11,7 +11,6 @@ import {
   Typography
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import ChatBot from "@/containers/ChatBot/ChatBot";
 import Section from "@/components/Section/Section";
 import { useProducts } from "@/services/products.service.js";
 import { useBotSearch } from "@/services/bot.service";
@@ -117,7 +116,6 @@ function Landing() {
       </Popover>
       <Container maxWidth="xl" sx={{ py: 5 }}>
         <Section title={"Today’s Deals"} products={products} />
-        <ChatBot />
       </Container>
     </>
   );
