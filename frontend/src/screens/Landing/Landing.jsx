@@ -27,7 +27,6 @@ function Landing() {
   });
   const [searchResult, setSearchResult] = React.useState([]);
   const searchBoxRef = React.useRef(null);
-  const [anchorEl, setAnchorEl] = React.useState(null);
 
   const chatBot = useBotSearch(handleBotResponse);
 
@@ -37,7 +36,6 @@ function Landing() {
 
   function handleBotResponse(data) {
     setSearchResult(JSON.parse(data.data.content));
-    setAnchorEl(searchBoxRef.current);
   }
 
   const onSubmit = ({ search }) => {
@@ -45,7 +43,7 @@ function Landing() {
   };
 
   const handleClose = () => {
-    setAnchorEl(null);
+    setSearchResult([]);
   };
 
   return (
@@ -70,6 +68,7 @@ function Landing() {
               {...register("search")}
               type="search"
               variant="outlined"
+              disabled={chatBot.isPending}
               sx={{
                 background: "white",
                 borderRadius: 1,
@@ -98,12 +97,11 @@ function Landing() {
         </form>
       </Box>
       <Popover
-        open={Boolean(anchorEl)}
-        anchorEl={anchorEl}
+        open={searchResult.length > 0}
+        anchorEl={searchBoxRef.current}
         onClose={handleClose}
-        elevation={4}
         anchorOrigin={{
-          vertical: "bottom",
+          vertical: "top",
           horizontal: "center"
         }}
         transformOrigin={{
