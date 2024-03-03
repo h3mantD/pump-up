@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "157b6812e27f9558f0321a0369f195e7",
+    "content-hash": "7afed863d02b894588193f938b67245b",
     "packages": [
         {
             "name": "amphp/amp",
@@ -987,6 +987,120 @@
                 }
             ],
             "time": "2023-12-11T17:09:12+00:00"
+        },
+        {
+            "name": "codewithkyrian/chromadb-laravel",
+            "version": "0.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/CodeWithKyrian/chromadb-laravel.git",
+                "reference": "8460d632a227e94968ae9e1d8c062a3e298a3c5f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/CodeWithKyrian/chromadb-laravel/zipball/8460d632a227e94968ae9e1d8c062a3e298a3c5f",
+                "reference": "8460d632a227e94968ae9e1d8c062a3e298a3c5f",
+                "shasum": ""
+            },
+            "require": {
+                "codewithkyrian/chromadb-php": "^0.1.0",
+                "laravel/framework": "^9.5.0|^10.34.2",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "orchestra/testbench": "^7.0 | ^8.20",
+                "pestphp/pest": "^1.9.1 | ^2.15",
+                "symfony/var-dumper": "^6.3 |^7.0.1"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Codewithkyrian\\ChromaDB\\ChromaServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Codewithkyrian\\ChromaDB\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Kyrian Obikwelu",
+                    "email": "kyrianobikwelu@gmail.com"
+                }
+            ],
+            "description": "ChromaDB Laravel is a Laravel client for the Chroma Open Source Embedding Database",
+            "keywords": [
+                "chroma",
+                "chromadb",
+                "database",
+                "embedding",
+                "laravel",
+                "open-source",
+                "php",
+                "sdk",
+                "search",
+                "semantic",
+                "vectors"
+            ],
+            "support": {
+                "issues": "https://github.com/CodeWithKyrian/chromadb-laravel/issues",
+                "source": "https://github.com/CodeWithKyrian/chromadb-laravel/tree/0.2.0"
+            },
+            "time": "2024-01-17T09:06:17+00:00"
+        },
+        {
+            "name": "codewithkyrian/chromadb-php",
+            "version": "v0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/CodeWithKyrian/chromadb-php.git",
+                "reference": "c3303acda69401a7f94fcee0fb40188f02920b6c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/CodeWithKyrian/chromadb-php/zipball/c3303acda69401a7f94fcee0fb40188f02920b6c",
+                "reference": "c3303acda69401a7f94fcee0fb40188f02920b6c",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^7.0",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "pestphp/pest": "^2.19",
+                "symfony/var-dumper": "^6.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Codewithkyrian\\ChromaDB\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Kyrian Obikwelu",
+                    "email": "kyrianobikwelu@gmail.com"
+                }
+            ],
+            "description": "A PHP client for the Chroma Open Source Embedding Database",
+            "support": {
+                "issues": "https://github.com/CodeWithKyrian/chromadb-php/issues",
+                "source": "https://github.com/CodeWithKyrian/chromadb-php/tree/v0.1.0"
+            },
+            "time": "2023-12-31T19:51:26+00:00"
         },
         {
             "name": "daverandom/libdns",
