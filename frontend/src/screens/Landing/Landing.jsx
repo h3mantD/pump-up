@@ -57,7 +57,7 @@ function Landing() {
           />
         </Stack>
       </Box>
-      <Container maxWidth="xl" sx={{ pt: 10 }}>
+      <Container maxWidth="xl" sx={{ pt: 5 }}>
         <Typography variant="h4" color="black" sx={{ pb: 1 }}>
           Today&rsquo;s Deals
         </Typography>
@@ -77,8 +77,6 @@ function Landing() {
             </SwiperSlide>
           ))}
         </Swiper>
-
-        <Grid container spacing={10}></Grid>
         <ChatBot />
       </Container>
     </>
