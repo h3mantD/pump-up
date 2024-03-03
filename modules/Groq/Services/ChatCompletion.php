@@ -19,9 +19,11 @@ final class ChatCompletion
 
     public function complete(ChatCompletionPayload $chatCompletionPayload, string $chatRole): array
     {
+        // getting the last messages..
         $messages = $chatCompletionPayload->messages;
         $lastMessage = Arr::last($messages)->content;
 
+        // if user is searching a product
         if ('search' === $chatRole) {
             /**
              * @var \Illuminate\Database\Eloquent\Collection<Product> $products
@@ -32,7 +34,7 @@ final class ChatCompletion
 
             $customMessage = [
                 'role' => Role::SYSTEM->value,
-                'content' => 'You are ai which filters the gym products and you return the response in json format only, here is the list of products that are in the inventory : ' . $productsJson,
+                'content' => 'You are fitness expert ai which filters the gym products and you return the response in json format only, here is the list of products that are in the inventory : ' . $productsJson,
             ];
 
             $lastMessage = [
@@ -42,6 +44,7 @@ final class ChatCompletion
                 . "``` {$lastMessage} ```",
             ];
         } else {
+            // else act as a normal chatbot
             $customMessage = [
                 'role' => Role::SYSTEM->value,
                 'content' => 'You are a fitness expert',
