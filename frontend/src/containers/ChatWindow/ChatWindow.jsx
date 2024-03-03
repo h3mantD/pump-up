@@ -29,8 +29,7 @@ function ChatWindow() {
   });
 
   function handleChatBotResponse(data) {
-    console.log(data);
-    reset();
+    setHistory([...history, data.data]);
   }
 
   const onSubmit = ({ chat }) => {
@@ -39,13 +38,14 @@ function ChatWindow() {
       { role: "user", content: chat, timeStamp: Date.now() }
     ]);
     chatBot.mutate({ role: "user", content: chat });
+    reset();
   };
 
   return (
     <Card sx={{ width: 300 }}>
       <CardHeader avatar={<SmartToyIcon />} title="ChatBot" />
       <Divider />
-      <CardContent sx={{ height: 200 }}>
+      <CardContent sx={{ height: 400, overflowY: "scroll" }}>
         <Stack spacing={2}>
           {history.map((item) => {
             if (item.role === "user") {
