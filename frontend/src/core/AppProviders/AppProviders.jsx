@@ -1,7 +1,7 @@
 import {
   CssBaseline,
   StyledEngineProvider,
-  ThemeProvider,
+  ThemeProvider
 } from "@mui/material";
 import { BrowserRouter } from "react-router-dom";
 import theme from "@/helpers/theme";
@@ -23,7 +23,7 @@ function AppProviders({ children }) {
               <BrowserRouter>
                 <QueryClientProvider client={queryClient}>
                   {children}
-                  <ReactQueryDevtools initialIsOpen={false} />
+                  {/* <ReactQueryDevtools initialIsOpen={false} /> */}
                 </QueryClientProvider>
               </BrowserRouter>
             </ThemeProvider>

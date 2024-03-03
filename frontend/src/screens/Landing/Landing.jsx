@@ -1,5 +1,4 @@
 import {
-  Box,
   Container,
   Grid,
   InputAdornment,
@@ -10,10 +9,11 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import d from "@/data/d.json";
 import Product from "@/components/Product/Product.jsx";
+import ChatBot from "@/containers/ChatBot/ChatBot";
 
 function Landing() {
   return (
-    <Container maxWidth="xl">
+    <Container maxWidth="xl" className="background">
       <Stack alignItems="center" spacing={2} sx={{ py: 15 }}>
         <Typography variant="h2" color="whitesmoke" textAlign="center">
           “The only person you are destined to become is the person you decide
@@ -50,8 +50,7 @@ function Landing() {
           </Grid>
         ))}
       </Grid>
-
-      <Stack direction="row" spacing={2} flexWrap="wrap"></Stack>
+      <ChatBot />
     </Container>
   );
 }
