@@ -47,7 +47,7 @@ final class ChatCompletion
             // else act as a normal chatbot
             $customMessage = [
                 'role' => Role::SYSTEM->value,
-                'content' => 'You are a fitness expert',
+                'content' => 'You are a fitness expert and customer support agent for a portal "pump" which sells gym equipments, ',
             ];
 
             $lastMessage = [
