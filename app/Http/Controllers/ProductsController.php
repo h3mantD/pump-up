@@ -1,64 +1,41 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
+use App\Models\Product;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class ProductsController extends Controller
+final class ProductsController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request): JsonResponse
     {
-        //
+        $pageSize = $request->get('page_size', 10);
+
+        $products = Product::query();
+
+        if ($request->has('ids')) {
+            $products->whereIn('id', explode(',', $request->get('ids')));
+        }
+        if ($request->has('name')) {
+            $products->where('name', 'like', '%' . $request->get('name') . '%');
+        }
+        if ($request->has('category_id')) {
+            $products->where('category_id', $request->get('category_id'));
+        }
+
+        return response()->json($products->paginate($pageSize));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function getReviews(Product $product, Request $request): JsonResponse
     {
-        //
-    }
+        $pageSize = $request->get('page_size', 5);
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return response()->json($product->reviews()->paginate($pageSize));
     }
 }
