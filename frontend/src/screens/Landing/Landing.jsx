@@ -17,9 +17,11 @@ import { useBotSearch } from "@/services/bot.service";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { useNavigate } from "react-router-dom";
 
 function Landing() {
   const products = useProducts();
+  const navigate = useNavigate();
 
   const inputSchema = yup.object({
     search: yup.string().required("Search is required")
@@ -109,7 +111,11 @@ function Landing() {
         }}
       >
         {searchResult.map((item) => (
-          <MenuItem key={item.id} sx={{ width: 700 }}>
+          <MenuItem
+            key={item.id}
+            sx={{ width: 700 }}
+            onClick={() => navigate(`/product/${item.id}`)}
+          >
             {item.name}
           </MenuItem>
         ))}
