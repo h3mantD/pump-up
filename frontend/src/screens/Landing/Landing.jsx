@@ -4,6 +4,8 @@ import {
   CircularProgress,
   Container,
   IconButton,
+  MenuItem,
+  Popover,
   Stack,
   TextField,
   Typography
@@ -24,6 +26,8 @@ function Landing() {
     search: yup.string().required("Search is required")
   });
   const [searchResult, setSearchResult] = React.useState([]);
+  const searchBoxRef = React.useRef(null);
+  const [anchorEl, setAnchorEl] = React.useState(null);
 
   const chatBot = useBotSearch(handleBotResponse);
 
@@ -33,10 +37,15 @@ function Landing() {
 
   function handleBotResponse(data) {
     setSearchResult(JSON.parse(data.data.content));
+    setAnchorEl(searchBoxRef.current);
   }
 
   const onSubmit = ({ search }) => {
     chatBot.mutate({ role: "user", content: search });
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
   };
 
   return (
@@ -84,9 +93,30 @@ function Landing() {
                 )
               }}
             />
+            <div ref={searchBoxRef} />
           </Stack>
         </form>
       </Box>
+      <Popover
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        elevation={4}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center"
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "center"
+        }}
+      >
+        {searchResult.map((item) => (
+          <MenuItem key={item.id} sx={{ width: 700 }}>
+            {item.name}
+          </MenuItem>
+        ))}
+      </Popover>
       <Container maxWidth="xl" sx={{ py: 5 }}>
         <Section title={"Today’s Deals"} products={products} />
         <ChatBot />
