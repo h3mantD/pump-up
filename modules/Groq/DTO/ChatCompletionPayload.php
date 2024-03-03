@@ -22,7 +22,7 @@ final class ChatCompletionPayload extends Data
         public readonly ?int $topP,
         public readonly ?bool $stream,
         public readonly AiModel $model = AiModel::MIXTRAL_8X7B,
-        public readonly ?string $stop = null
+        public readonly ?string $stop = null,
     ) {
     }
 

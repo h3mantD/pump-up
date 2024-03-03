@@ -18,7 +18,7 @@ final class ChatController extends Controller
         try {
             $validated = ChatCompletionPayload::validateAndCreate($request->all());
 
-            return response()->json($chatCompletion->complete($validated));
+            return response()->json($chatCompletion->complete($validated, $request->get('chat_role', 'chatbot')));
         } catch (Throwable $th) {
             if ($th instanceof \Illuminate\Validation\ValidationException) {
                 return response()->json(['error' => $th->errors()], 412);

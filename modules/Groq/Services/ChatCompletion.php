@@ -17,29 +17,41 @@ final class ChatCompletion
     {
     }
 
-    public function complete(ChatCompletionPayload $chatCompletionPayload): array
+    public function complete(ChatCompletionPayload $chatCompletionPayload, string $chatRole): array
     {
         $messages = $chatCompletionPayload->messages;
         $lastMessage = Arr::last($messages)->content;
 
-        /**
-         * @var \Illuminate\Database\Eloquent\Collection<Product> $products
-         */
-        $products = Product::queryChromaCollection($lastMessage, 30)->get();
+        if ('search' === $chatRole) {
+            /**
+             * @var \Illuminate\Database\Eloquent\Collection<Product> $products
+             */
+            $products = Product::queryChromaCollection($lastMessage, 30)->get();
 
-        $productsJson = $products->toJson();
+            $productsJson = $products->toJson();
 
-        $customMessage = [
-            'role' => Role::SYSTEM->value,
-            'content' => 'You are ai which filters the gym products, here is the list of products that are in the inventory : ' . $productsJson,
-        ];
+            $customMessage = [
+                'role' => Role::SYSTEM->value,
+                'content' => 'You are ai which filters the gym products and you return the response in json format only, here is the list of products that are in the inventory : ' . $productsJson,
+            ];
 
-        $lastMessage = [
-            'role' => Role::USER->value,
-            'content' => 'You are a fitness expert, analyze the query delimited by . And Suggest appropriate products and their link. '
-            . "The result should be json formatted with keys 'id', 'name', 'status' and 'available stock'. Dont add new line character in json string " . "You only return the json object of products don't show any extra details for information if there are no productes to be found then return the empty array \n"
-            . "``` {$lastMessage} ```",
-        ];
+            $lastMessage = [
+                'role' => Role::USER->value,
+                'content' => 'You are a fitness expert, analyze the query delimited by . And Suggest appropriate products and their link. '
+                . "The result should be json formatted with keys 'id', 'name', 'status' and 'available stock'. Dont add new line character in json string " . "You only return the json object of products don't show any extra details for information if there are no productes to be found then return the empty array \n"
+                . "``` {$lastMessage} ```",
+            ];
+        } else {
+            $customMessage = [
+                'role' => Role::SYSTEM->value,
+                'content' => 'You are a fitness expert',
+            ];
+
+            $lastMessage = [
+                'role' => Role::USER->value,
+                'content' => $lastMessage,
+            ];
+        }
 
         $chatCompletionPayload = $chatCompletionPayload->addMessage(MessagePayload::from($customMessage));
         $chatCompletionPayload = $chatCompletionPayload->addMessage(MessagePayload::from($lastMessage));
