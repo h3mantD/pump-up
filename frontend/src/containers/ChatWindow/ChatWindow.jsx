@@ -17,8 +17,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useChatBot } from "@/services/bot.service";
 
-function ChatWindow() {
-  const [history, setHistory] = React.useState([]);
+function ChatWindow({ history, setHistory }) {
   const inputSchema = yup.object({
     chat: yup.string().required("Chat is required")
   });
@@ -88,6 +87,7 @@ function ChatWindow() {
               size="small"
               fullWidth
               placeholder="Type your message here..."
+              autoComplete="off"
               variant="outlined"
               InputProps={{
                 endAdornment: (

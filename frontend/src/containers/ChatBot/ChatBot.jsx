@@ -6,6 +6,7 @@ import ChatWindow from "../ChatWindow/ChatWindow";
 function ChatBot() {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
+  const [history, setHistory] = React.useState([]);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -43,7 +44,7 @@ function ChatBot() {
           horizontal: "right"
         }}
       >
-        <ChatWindow />
+        <ChatWindow history={history} setHistory={setHistory} />
       </Popover>
     </>
   );
