@@ -51,6 +51,18 @@ cp .env.example .env
     JINA_ACESS_TOKEN=
     ```
 
+- Setup Chroma DB and add it's configuraiton in .env
+    ```bash
+    CHROMA_HOST=http://localhost
+    CHROMA_PORT=8080
+    CHROMA_TENANT=default
+    CHROMA_DATABASE=default
+    CHROMA_SYNC_ENABLED=true
+    CHROMA_SYNC_QUEUE=default
+    CHROMA_SYNC_CONNECTION=database
+    CHROMA_SYNC_TRIES=3
+    ```
+
 #### Generate Application Key
 
 ```bash
