@@ -1,3 +1,5 @@
+- More about PUMP-UP: https://docs.google.com/presentation/d/1qXXukTxUAld32hxilGgxxtT_OcCGyy7VzN0_oCphENk/edit#slide=id.p
+
 # Installation
 
 ```bash
