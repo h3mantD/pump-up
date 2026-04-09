@@ -8,19 +8,16 @@ use App\Models\Product;
 use App\Observers\ProductObserver;
 use Illuminate\Support\ServiceProvider;
 use Modules\ElevenLabs\Providers\ElevenLabsProvider;
-use Modules\Groq\Providers\GroqProvider;
+use Modules\Groq\Providers\RouteServiceProvider as GroqRouteServiceProvider;
 use Override;
 
 final class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     #[Override]
     public function register(): void
     {
-        $this->app->register(GroqProvider::class);
         $this->app->register(ElevenLabsProvider::class);
+        $this->app->register(GroqRouteServiceProvider::class);
     }
 
     public function boot(): void

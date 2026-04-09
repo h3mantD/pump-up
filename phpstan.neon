@@ -7,7 +7,6 @@ parameters:
         - modules/
 
     excludePaths:
-        - modules/Groq/config.php
         - modules/ElevenLabs/config.php
 
     level: max
