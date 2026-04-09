@@ -7,7 +7,6 @@ parameters:
         - modules/
 
     excludePaths:
-        - app/Models/Product.php
         - modules/Groq/config.php
         - modules/ElevenLabs/config.php
 
