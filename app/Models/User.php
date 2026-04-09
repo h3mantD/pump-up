@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -21,7 +23,7 @@ use Override;
     'password',
     'remember_token',
 ])]
-final class User extends Authenticatable
+final class User extends Authenticatable implements FilamentUser
 {
     /** @use HasApiTokens<\Laravel\Sanctum\PersonalAccessToken> */
     use HasApiTokens;
@@ -31,6 +33,11 @@ final class User extends Authenticatable
 
     use Notifiable;
     use SoftDeletes;
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return true;
+    }
 
     /**
      * The attributes that should be cast.
