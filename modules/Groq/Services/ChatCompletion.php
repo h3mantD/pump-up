@@ -29,7 +29,7 @@ final class ChatCompletion
             /**
              * @var \Illuminate\Database\Eloquent\Collection<int, Product> $products
              */
-            $products = Product::query()->limit(30)->get();
+            $products = Product::similarTo($lastMessage)->get();
 
             $productsJson = $products->toJson();
 

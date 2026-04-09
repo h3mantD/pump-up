@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Models\Product;
+use App\Observers\ProductObserver;
 use Illuminate\Support\ServiceProvider;
 use Modules\ElevenLabs\Providers\ElevenLabsProvider;
 use Modules\Groq\Providers\GroqProvider;
@@ -19,5 +21,10 @@ final class AppServiceProvider extends ServiceProvider
     {
         $this->app->register(GroqProvider::class);
         $this->app->register(ElevenLabsProvider::class);
+    }
+
+    public function boot(): void
+    {
+        Product::observe(ProductObserver::class);
     }
 }
