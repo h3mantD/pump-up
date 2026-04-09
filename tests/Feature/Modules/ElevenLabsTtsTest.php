@@ -6,7 +6,7 @@ namespace Tests\Feature\Modules;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Http;
+use Laravel\Ai\Audio;
 use Tests\TestCase;
 
 final class ElevenLabsTtsTest extends TestCase
@@ -23,23 +23,25 @@ final class ElevenLabsTtsTest extends TestCase
 
     public function test_tts_returns_success(): void
     {
-        Http::fake([
-            'api.elevenlabs.io/*' => Http::response('fake-audio-content', 200),
-        ]);
+        Audio::fake();
 
-        $response = $this->actingAs($this->user, 'sanctum')->postJson('/api/v1/eleven-labs/text-to-speech', [
-            'text' => 'Hello, welcome to Pump Up!',
-        ]);
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->postJson('/api/v1/eleven-labs/text-to-speech', [
+                'text' => 'Hello, welcome to Pump Up!',
+            ]);
 
         $response->assertOk()
-            ->assertJson(['status' => true]);
+            ->assertJsonStructure(['status', 'path']);
+
+        Audio::assertGenerated(fn ($prompt) => $prompt->contains('Hello'));
     }
 
     public function test_tts_validates_required_fields(): void
     {
-        $response = $this->actingAs($this->user, 'sanctum')->postJson('/api/v1/eleven-labs/text-to-speech', []);
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->postJson('/api/v1/eleven-labs/text-to-speech', []);
 
-        $response->assertStatus(412)
-            ->assertJsonStructure(['error']);
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['text']);
     }
 }

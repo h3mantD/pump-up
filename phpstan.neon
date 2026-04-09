@@ -6,7 +6,4 @@ parameters:
         - app/
         - modules/
 
-    excludePaths:
-        - modules/ElevenLabs/config.php
-
     level: max

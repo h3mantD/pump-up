@@ -7,29 +7,22 @@ namespace Modules\ElevenLabs\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Modules\ElevenLabs\DTO\TextToSpeechPayload;
-use Modules\ElevenLabs\Services\TextToSpeech;
-use Throwable;
+use Laravel\Ai\Audio;
+use Laravel\Ai\Enums\Lab;
 
 final class TextToSpeechController extends Controller
 {
-    public function __invoke(Request $request, TextToSpeech $textToSpeech): JsonResponse
+    public function __invoke(Request $request): JsonResponse
     {
-        try {
-            $validator = TextToSpeechPayload::validateAndCreate($request->all());
+        $request->validate([
+            'text' => ['required', 'string'],
+        ]);
 
-            $response = $textToSpeech->handle($validator);
+        $audio = Audio::of($request->string('text')->value())
+            ->generate(Lab::ElevenLabs);
 
-            return response()->json($response);
-        } catch (Throwable $th) {
-            if ($th instanceof \Illuminate\Validation\ValidationException) {
-                return response()->json(['error' => $th->errors()], 412);
-            }
+        $path = $audio->storeAs('audio.mp3', 'public');
 
-            return response()->json(
-                ['error' => $th->getMessage()],
-                (int) ($th->getCode() ?: 500)
-            );
-        }
+        return response()->json(['status' => true, 'path' => $path]);
     }
 }
