@@ -4,82 +4,39 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Codewithkyrian\ChromaDB\Concerns\HasChromaCollection;
-use Codewithkyrian\ChromaDB\Contracts\ChromaModel;
-use Codewithkyrian\ChromaDB\Embeddings\HuggingFaceEmbeddingServerFunction;
-use Codewithkyrian\ChromaDB\Embeddings\JinaEmbeddingFunction;
-use Digikraaft\ReviewRating\Traits\HasReviewRating;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
-final class Product extends Model implements ChromaModel
+#[\Illuminate\Database\Eloquent\Attributes\Appends([
+    'category_name',
+])]
+#[\Illuminate\Database\Eloquent\Attributes\Fillable([
+    'name',
+    'description',
+    'price',
+    'stock',
+    'status',
+    'image',
+    'category_id',
+])]
+final class Product extends Model
 {
-    use HasChromaCollection;
     use HasFactory;
-    use HasReviewRating;
 
-    protected $fillable = [
-        'name',
-        'description',
-        'price',
-        'stock',
-        'status',
-        'image',
-        'category_id',
-    ];
-
-    protected $appends = [
-        'category_name',
-    ];
-
-    public function category()
+    public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
-    public function getCategoryNameAttribute()
+    public function reviews(): MorphMany
     {
-        return $this->category->name;
+        return $this->morphMany(Review::class, 'model');
     }
 
-    public function documentFields(): array
+    protected function categoryName(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        return [
-            'name',
-            'description',
-            'category_id',
-            'category_name',
-        ];
-    }
-
-    public function embeddingFunction(): HuggingFaceEmbeddingServerFunction|JinaEmbeddingFunction
-    {
-        return new JinaEmbeddingFunction(config('chromadb.jina_api_key'));
-        // return new HuggingFaceEmbeddingServerFunction(config("chromadb.hf_api_key"), config("chromadb.hf_model_name"));
-    }
-
-    public function collectionName(): string
-    {
-        return 'products_collection';
-    }
-
-    public function metadataFields(): array
-    {
-        return [
-            'id',
-            'description',
-            'category_id',
-            'category_name',
-        ];
-    }
-
-    public function toChromaMetadata(): array
-    {
-        return [
-            'id' => $this->id,
-            'description' => $this->description,
-            'category_id' => $this->category_id,
-            'category_name' => $this->category_name,
-        ];
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: fn () => $this->category->name);
     }
 }

@@ -7,8 +7,6 @@ use App\Models\Review;
 return [
     /*
       * The class name of the review model that holds all reviews.
-      *
-      * The model must be or extend `Digikraaft\ReviewRating\Review`.
       */
     'review_model' => Review::class,
 
