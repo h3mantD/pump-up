@@ -21,15 +21,13 @@ final class ReviewFactory extends Factory
     public function definition(): array
     {
         return [
-            'title' => $this->faker->sentence,
-            'review' => $this->faker->paragraph,
-            'rating' => $this->faker->numberBetween(1, 5),
+            'title' => fake()->sentence(),
+            'review' => fake()->paragraph(),
+            'rating' => fake()->numberBetween(1, 5),
             'model_type' => Product::class,
-            'model_id' => $this->faker->randomElement(
-                Product::pluck('id')->toArray()
-            ),
+            'model_id' => Product::factory(),
             'author_type' => User::class,
-            'author_id' => 1,
+            'author_id' => User::factory(),
         ];
     }
 }
