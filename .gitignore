@@ -18,3 +18,14 @@ yarn-error.log
 /.idea
 /.vscode
 /.tinkerun
+
+# AI tooling (local config)
+/.agents
+/.claude
+/.mcp.json
+/.remember
+AGENTS.md
+CLAUDE.md
+boost.json
+opencode.json
+docs/superpowers/
