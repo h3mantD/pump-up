@@ -13,9 +13,7 @@ final class ElevenLabsProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
-    {
-    }
+    public function boot(): void {}
 
     /**
      * Register any application services.
@@ -29,12 +27,16 @@ final class ElevenLabsProvider extends ServiceProvider
 
         $this->app->singleton(
             abstract: ElevenLabs::class,
-            concrete: fn (): ElevenLabs => new ElevenLabs(pendingRequest: Http::baseUrl(
-                url: 'https://api.elevenlabs.io/v1/'
-            )
-                ->asJson()
-                ->acceptJson()
-                ->withHeader(name: 'xi-api-key', value: config('elevenlabs.api_token')))
+            concrete: function (): ElevenLabs {
+                $apiToken = config('elevenlabs.api_token');
+
+                return new ElevenLabs(pendingRequest: Http::baseUrl(
+                    url: 'https://api.elevenlabs.io/v1/'
+                )
+                    ->asJson()
+                    ->acceptJson()
+                    ->withHeader(name: 'xi-api-key', value: is_string($apiToken) ? $apiToken : ''));
+            }
         );
 
         $this->app->register(

@@ -11,16 +11,24 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 final class Review extends Model
 {
+    /** @use HasFactory<\Database\Factories\ReviewFactory> */
     use HasFactory;
+
     use SoftDeletes;
 
     protected $guarded = [];
 
+    /**
+     * @return MorphTo<Model, $this>
+     */
     public function model(): MorphTo
     {
         return $this->morphTo();
     }
 
+    /**
+     * @return MorphTo<Model, $this>
+     */
     public function author(): MorphTo
     {
         return $this->morphTo();

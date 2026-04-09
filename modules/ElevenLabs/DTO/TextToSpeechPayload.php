@@ -17,10 +17,12 @@ final class TextToSpeechPayload extends Data
         public readonly string $text,
         public ?VoiceSettings $voiceSettings,
         public ?string $modelId,
+        /** @var array<string, mixed>|null */
         public readonly ?array $pronunciationDictionaryLocators = [],
     ) {
         if (! $this->modelId) {
-            $this->modelId = config('elevenlabs.model_id');
+            $modelId = config('elevenlabs.model_id');
+            $this->modelId = is_string($modelId) ? $modelId : '';
         }
 
         if (! $this->voiceSettings) {

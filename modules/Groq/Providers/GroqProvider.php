@@ -28,12 +28,14 @@ final class GroqProvider extends ServiceProvider
         $this->app->singleton(
             abstract: Groq::class,
             concrete: function (): Groq {
+                $apiToken = config('gorq.api_token');
+
                 return new Groq(pendingRequest: Http::baseUrl(
                     url: 'https://api.groq.com/openai/v1/'
                 )
                     ->asJson()
                     ->acceptJson()
-                    ->withToken(config('gorq.api_token')));
+                    ->withToken(is_string($apiToken) ? $apiToken : ''));
             },
         );
 

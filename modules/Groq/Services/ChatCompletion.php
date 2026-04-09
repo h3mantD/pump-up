@@ -6,29 +6,30 @@ namespace Modules\Groq\Services;
 
 use App\Enums\Method;
 use App\Models\Product;
-use Illuminate\Support\Arr;
 use Modules\Groq\DTO\ChatCompletionPayload;
 use Modules\Groq\DTO\MessagePayload;
 use Modules\Groq\Enums\Role;
 
 final class ChatCompletion
 {
-    public function __construct(public Groq $groq)
-    {
-    }
+    public function __construct(public Groq $groq) {}
 
+    /**
+     * @return array<string, mixed>
+     */
     public function complete(ChatCompletionPayload $chatCompletionPayload, string $chatRole): array
     {
         // getting the last messages..
         $messages = $chatCompletionPayload->messages;
-        $lastMessage = Arr::last($messages)->content;
+        $lastMessagePayload = $messages[array_key_last($messages)] ?? null;
+        $lastMessage = null !== $lastMessagePayload ? $lastMessagePayload->content : '';
 
         // if user is searching a product
         if ('search' === $chatRole) {
             /**
-             * @var \Illuminate\Database\Eloquent\Collection<Product> $products
+             * @var \Illuminate\Database\Eloquent\Collection<int, Product> $products
              */
-            $products = Product::queryChromaCollection($lastMessage, 30)->get();
+            $products = Product::query()->limit(30)->get();
 
             $productsJson = $products->toJson();
 
@@ -62,9 +63,10 @@ final class ChatCompletion
         $response = $this->groq->send(
             method: Method::POST,
             url: 'chat/completions',
-            body: $chatCompletionPayload->toArray()
+            body: $chatCompletionPayload->all()
         );
 
+        /** @var array<string, mixed> */
         return $response->json();
     }
 }

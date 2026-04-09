@@ -28,7 +28,7 @@ final class TextToSpeechController extends Controller
 
             return response()->json(
                 ['error' => $th->getMessage()],
-                $th->getCode() ? $th->getCode() : 500
+                (int) ($th->getCode() ?: 500)
             );
         }
     }

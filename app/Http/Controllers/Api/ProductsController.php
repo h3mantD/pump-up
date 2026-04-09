@@ -16,15 +16,15 @@ final class ProductsController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $pageSize = $request->get('page_size', 10);
+        $pageSize = $request->integer('page_size', 10);
 
         $products = Product::query();
 
         if ($request->has('ids')) {
-            $products->whereIn('id', explode(',', (string) $request->get('ids')));
+            $products->whereIn('id', explode(',', $request->string('ids')->toString()));
         }
         if ($request->has('name')) {
-            $products->where('name', 'like', '%' . $request->get('name') . '%');
+            $products->where('name', 'like', '%' . $request->string('name')->toString() . '%');
         }
         if ($request->has('category_id')) {
             $products->where('category_id', $request->get('category_id'));
@@ -40,7 +40,7 @@ final class ProductsController extends Controller
 
     public function getReviews(Product $product, Request $request): JsonResponse
     {
-        $pageSize = $request->get('page_size', 5);
+        $pageSize = $request->integer('page_size', 5);
 
         return response()->json($product->reviews()->paginate($pageSize));
     }

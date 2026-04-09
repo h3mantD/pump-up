@@ -10,6 +10,9 @@ enum StockStatus: string
     case Unavailable = 'unavailable';
     case OutOfStock = 'out_of_stock';
 
+    /**
+     * @return array<string>
+     */
     public static function getAllValues(): array
     {
         return array_column(array: self::cases(), column_key: 'value');

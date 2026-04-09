@@ -20,9 +20,15 @@ final class ChatController extends Controller
         try {
             $validated = ChatCompletionPayload::validateAndCreate($request->all());
 
-            $response = $chatCompletion->complete($validated, $request->get('chat_role', 'chatbot'));
+            $response = $chatCompletion->complete($validated, $request->string('chat_role', 'chatbot')->toString());
 
-            return response()->json(Arr::first($response['choices'])['message'] ?? [
+            /** @var array<array<string, mixed>> $choices */
+            $choices = $response['choices'] ?? [];
+
+            /** @var array<string, mixed>|null $firstChoice */
+            $firstChoice = Arr::first($choices);
+
+            return response()->json($firstChoice['message'] ?? [
                 'role' => Role::ASSISTANT,
                 'content' => 'I am sorry, I could not understand that. Could you please rephrase?',
             ]);
@@ -33,7 +39,7 @@ final class ChatController extends Controller
 
             return response()->json(
                 ['error' => $th->getMessage()],
-                $th->getCode() ? $th->getCode() : 500
+                (int) ($th->getCode() ?: 500)
             );
         }
     }

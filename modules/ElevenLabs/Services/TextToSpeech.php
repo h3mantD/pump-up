@@ -9,16 +9,17 @@ use Modules\ElevenLabs\DTO\TextToSpeechPayload;
 
 final class TextToSpeech
 {
-    public function __construct(public ElevenLabs $elevenLabs)
-    {
-    }
+    public function __construct(public ElevenLabs $elevenLabs) {}
 
+    /**
+     * @return array{status: bool}
+     */
     public function handle(TextToSpeechPayload $textToSpeechPayload): array
     {
         $response = $this->elevenLabs->send(
             method: Method::POST,
-            url: 'text-to-speech/' . config('elevenlabs.voice_id'),
-            body: $textToSpeechPayload->toArray()
+            url: 'text-to-speech/' . (is_string($voiceId = config('elevenlabs.voice_id')) ? $voiceId : ''),
+            body: $textToSpeechPayload->all()
         );
 
         if ($response->successful()) {

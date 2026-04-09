@@ -10,10 +10,11 @@ use Illuminate\Http\Client\Response;
 
 final class Groq
 {
-    public function __construct(public PendingRequest $pendingRequest)
-    {
-    }
+    public function __construct(public PendingRequest $pendingRequest) {}
 
+    /**
+     * @param  array<array-key, mixed>|null  $body
+     */
     public function send(Method $method, string $url, ?array $body = null): Response
     {
         return $this->pendingRequest->send(method: $method->value, url: $url, options: [

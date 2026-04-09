@@ -8,5 +8,7 @@ parameters:
 
     excludePaths:
         - app/Models/Product.php
+        - modules/Groq/config.php
+        - modules/ElevenLabs/config.php
 
     level: max

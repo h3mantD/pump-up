@@ -22,7 +22,13 @@ use Override;
 ])]
 final class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    /** @use HasApiTokens<\Laravel\Sanctum\PersonalAccessToken> */
+    use HasApiTokens;
+
+    /** @use HasFactory<\Database\Factories\UserFactory> */
+    use HasFactory;
+
+    use Notifiable;
 
     /**
      * The attributes that should be cast.
