@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RegisterRequest;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
 
@@ -25,7 +28,7 @@ final class LoginController extends Controller
             }
 
             /**
-             * @var \App\Models\User $user
+             * @var User $user
              */
             $user = auth()->user();
 
@@ -47,10 +50,26 @@ final class LoginController extends Controller
         }
     }
 
+    public function register(RegisterRequest $request): JsonResponse
+    {
+        $user = User::create([
+            'name' => $request->validated('name'),
+            'email' => $request->validated('email'),
+            'password' => Hash::make($request->string('password')->value()),
+        ]);
+
+        $token = $user->createToken('auth-name')->plainTextToken;
+
+        return response()->json([
+            'status' => 'success',
+            'token' => $token,
+        ], 201);
+    }
+
     public function logout(Request $request): JsonResponse
     {
         /**
-         * @var \App\Models\User $user
+         * @var User $user
          */
         $user = $request->user();
 
