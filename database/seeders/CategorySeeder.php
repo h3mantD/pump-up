@@ -4,29 +4,29 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Models\Category;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 final class CategorySeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $categories = [
             'Cardio Machines',
             'Free Weights',
-            'Gym Package',
             'Strength Equipment',
+            'Benches & Racks',
+            'Resistance Training',
             'Accessories',
-            'Gym Supplies',
-            'Uncategorized',
+            'Gym Apparel',
+            'Recovery & Mobility',
         ];
 
         foreach ($categories as $category) {
-            \App\Models\Category::create([
+            Category::create([
                 'name' => $category,
-                'slug' => \Illuminate\Support\Str::slug($category),
+                'slug' => Str::slug($category),
             ]);
         }
     }
