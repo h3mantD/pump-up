@@ -101,6 +101,21 @@ final class ProductsController extends Controller
         return response()->json(['message' => 'Product deleted']);
     }
 
+    public function search(Request $request): JsonResponse
+    {
+        /** @var array{q: string, limit?: int} $validated */
+        $validated = $request->validate([
+            'q' => ['required', 'string'],
+            'limit' => ['sometimes', 'integer', 'min:1', 'max:30'],
+        ]);
+
+        $limit = $validated['limit'] ?? 10;
+
+        $products = Product::similarTo($validated['q'], $limit)->get();
+
+        return response()->json(['data' => $products]);
+    }
+
     public function bulkDelete(Request $request): JsonResponse
     {
         /** @var array{ids: array<int, int>} $validated */
