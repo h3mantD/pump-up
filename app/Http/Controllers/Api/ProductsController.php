@@ -21,7 +21,7 @@ final class ProductsController extends Controller
         $products = Product::query();
 
         if ($request->has('ids')) {
-            $products->whereIn('id', explode(',', $request->get('ids')));
+            $products->whereIn('id', explode(',', (string) $request->get('ids')));
         }
         if ($request->has('name')) {
             $products->where('name', 'like', '%' . $request->get('name') . '%');

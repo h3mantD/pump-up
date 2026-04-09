@@ -42,7 +42,7 @@ final class LoginController extends Controller
         } catch (Throwable $th) {
             return response()->json(
                 ['error' => $th->getMessage()],
-                $th->getCode() ? $th->getCode() : 500
+                $th->getCode() ?: 500
             );
         }
     }
