@@ -24,8 +24,13 @@ final class ProductSimilarityTest extends TestCase
         $this->assertEquals([0.1, 0.2, 0.3], $product->embedding);
     }
 
+    #[\PHPUnit\Framework\Attributes\Group('pgsql')]
     public function test_similar_to_scope_queries_with_vector_similarity(): void
     {
+        if ('sqlite' === config('database.default')) {
+            $this->markTestSkipped('pgvector requires PostgreSQL');
+        }
+
         Embeddings::fake();
 
         $product = Product::factory()->create();
