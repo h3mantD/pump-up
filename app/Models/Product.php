@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
     'status',
     'image',
     'category_id',
+    'embedding',
 ])]
 final class Product extends Model
 {
