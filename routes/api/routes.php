@@ -5,8 +5,9 @@ declare(strict_types=1);
 use App\Http\Controllers\Api\LoginController;
 use Illuminate\Support\Facades\Route;
 
-Route::group([], function (): void {
-    Route::post('/login', [LoginController::class, 'login'])->name('login');
+Route::post('/login', [LoginController::class, 'login'])->name('login');
+
+Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });
 

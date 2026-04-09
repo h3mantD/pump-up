@@ -5,15 +5,13 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Auth\Authenticatable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
 
 final class LoginController extends Controller
 {
-    use Authenticatable;
-
     public function login(Request $request): JsonResponse
     {
         try {
@@ -37,11 +35,11 @@ final class LoginController extends Controller
                 'status' => 'success',
                 'token' => $token,
             ]);
+        } catch (\Illuminate\Validation\ValidationException $th) {
+            return response()->json(['error' => $th->errors()], 412);
+        } catch (HttpException $th) {
+            return response()->json(['error' => $th->getMessage()], $th->getStatusCode());
         } catch (Throwable $th) {
-            if ($th instanceof \Illuminate\Validation\ValidationException) {
-                return response()->json(['error' => $th->errors()], 412);
-            }
-
             return response()->json(
                 ['error' => $th->getMessage()],
                 $th->getCode() ? $th->getCode() : 500
