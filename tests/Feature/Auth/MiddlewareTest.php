@@ -39,14 +39,14 @@ final class MiddlewareTest extends TestCase
         $this->patchJson('/api/v1/products/bulk-status', [])->assertUnauthorized();
     }
 
-    public function test_chat_endpoint_requires_auth(): void
+    public function test_chat_endpoint_is_publicly_accessible(): void
     {
-        $this->postJson('/api/v1/groq/chat', [])->assertUnauthorized();
+        $this->postJson('/api/v1/groq/chat', [])->assertStatus(422);
     }
 
-    public function test_tts_endpoint_requires_auth(): void
+    public function test_tts_endpoint_is_publicly_accessible(): void
     {
-        $this->postJson('/api/v1/eleven-labs/text-to-speech', [])->assertUnauthorized();
+        $this->postJson('/api/v1/eleven-labs/text-to-speech', [])->assertStatus(422);
     }
 
     public function test_protected_endpoints_work_with_valid_token(): void
