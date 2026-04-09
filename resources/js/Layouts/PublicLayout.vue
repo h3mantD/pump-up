@@ -1,6 +1,7 @@
 <script setup>
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import ChatWidget from '@/Components/ChatWidget.vue';
 
 defineProps({
     title: String,
@@ -92,5 +93,7 @@ function logout() {
         <main>
             <slot />
         </main>
+
+        <ChatWidget />
     </div>
 </template>
