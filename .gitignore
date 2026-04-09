@@ -24,6 +24,7 @@ yarn-error.log
 /.claude
 /.mcp.json
 /.remember
+/.github/skills
 AGENTS.md
 CLAUDE.md
 boost.json

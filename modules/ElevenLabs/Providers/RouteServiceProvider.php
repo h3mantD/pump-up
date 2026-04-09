@@ -4,17 +4,15 @@ declare(strict_types=1);
 
 namespace Modules\ElevenLabs\Providers;
 
-use Illuminate\Foundation\Support\Providers\RouteServiceProvider as BaseRouteServiceProvider;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\ServiceProvider;
 
-final class RouteServiceProvider extends BaseRouteServiceProvider
+final class RouteServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        $this->routes(function (): void {
-            Route::middleware('api')
-                ->prefix('api')
-                ->group(__DIR__ . '/../routes/api/routes.php');
-        });
+        Route::middleware('api')
+            ->prefix('api')
+            ->group(__DIR__ . '/../routes/api/routes.php');
     }
 }
