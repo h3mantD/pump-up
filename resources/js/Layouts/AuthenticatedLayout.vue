@@ -28,22 +28,31 @@ function logout() {
 
                     <div class="hidden sm:flex sm:items-center sm:gap-4">
                         <span class="text-sm text-gray-700">{{ user.name }}</span>
-                        <button
-                            @click="logout"
-                            class="text-sm text-gray-500 hover:text-gray-700 cursor-pointer"
-                        >
+                        <button class="text-sm text-gray-500 hover:text-gray-700 cursor-pointer" @click="logout">
                             Logout
                         </button>
                     </div>
 
                     <div class="flex items-center sm:hidden">
                         <button
-                            @click="mobileMenuOpen = !mobileMenuOpen"
                             class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
+                            @click="mobileMenuOpen = !mobileMenuOpen"
                         >
                             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path v-if="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                                <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                <path
+                                    v-if="!mobileMenuOpen"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M4 6h16M4 12h16M4 18h16"
+                                />
+                                <path
+                                    v-else
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"
+                                />
                             </svg>
                         </button>
                     </div>
@@ -53,12 +62,7 @@ function logout() {
             <div v-if="mobileMenuOpen" class="sm:hidden border-t border-gray-200 pb-3 pt-4 px-4">
                 <div class="text-sm font-medium text-gray-800">{{ user.name }}</div>
                 <div class="text-sm text-gray-500">{{ user.email }}</div>
-                <button
-                    @click="logout"
-                    class="mt-3 text-sm text-gray-500 hover:text-gray-700"
-                >
-                    Logout
-                </button>
+                <button class="mt-3 text-sm text-gray-500 hover:text-gray-700" @click="logout">Logout</button>
             </div>
         </nav>
 

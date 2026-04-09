@@ -20,7 +20,7 @@ function submit() {
     <GuestLayout title="Register">
         <h2 class="text-2xl font-bold text-gray-900 mb-6">Register</h2>
 
-        <form @submit.prevent="submit" class="space-y-4">
+        <form class="space-y-4" @submit.prevent="submit">
             <div>
                 <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
                 <input
@@ -59,7 +59,9 @@ function submit() {
             </div>
 
             <div>
-                <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                <label for="password_confirmation" class="block text-sm font-medium text-gray-700"
+                    >Confirm Password</label
+                >
                 <input
                     id="password_confirmation"
                     v-model="form.password_confirmation"

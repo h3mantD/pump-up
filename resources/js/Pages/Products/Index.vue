@@ -56,8 +56,8 @@ function goToPage(url) {
                             <h3 class="text-lg font-semibold text-gray-900">Filters</h3>
                             <button
                                 v-if="search || selectedCategory || selectedStatus"
-                                @click="clearFilters"
                                 class="text-xs text-indigo-600 hover:text-indigo-500"
+                                @click="clearFilters"
                             >
                                 Clear all
                             </button>
@@ -78,22 +78,26 @@ function goToPage(url) {
                             <ul class="space-y-1">
                                 <li>
                                     <button
-                                        @click="selectedCategory = ''"
                                         :class="[
                                             'w-full text-left px-3 py-1.5 rounded text-sm',
-                                            !selectedCategory ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-gray-600 hover:bg-gray-50'
+                                            !selectedCategory
+                                                ? 'bg-indigo-50 text-indigo-700 font-medium'
+                                                : 'text-gray-600 hover:bg-gray-50',
                                         ]"
+                                        @click="selectedCategory = ''"
                                     >
                                         All Categories
                                     </button>
                                 </li>
                                 <li v-for="category in categories" :key="category.id">
                                     <button
-                                        @click="selectedCategory = category.id"
                                         :class="[
                                             'w-full text-left px-3 py-1.5 rounded text-sm',
-                                            selectedCategory == category.id ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-gray-600 hover:bg-gray-50'
+                                            selectedCategory == category.id
+                                                ? 'bg-indigo-50 text-indigo-700 font-medium'
+                                                : 'text-gray-600 hover:bg-gray-50',
                                         ]"
+                                        @click="selectedCategory = category.id"
                                     >
                                         {{ category.name }}
                                     </button>
@@ -105,20 +109,24 @@ function goToPage(url) {
                             <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
                             <div class="flex gap-2">
                                 <button
-                                    @click="selectedStatus = ''"
                                     :class="[
                                         'px-3 py-1 rounded-full text-xs font-medium',
-                                        !selectedStatus ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                        !selectedStatus
+                                            ? 'bg-indigo-100 text-indigo-700'
+                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200',
                                     ]"
+                                    @click="selectedStatus = ''"
                                 >
                                     All
                                 </button>
                                 <button
-                                    @click="selectedStatus = 'available'"
                                     :class="[
                                         'px-3 py-1 rounded-full text-xs font-medium',
-                                        selectedStatus === 'available' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                        selectedStatus === 'available'
+                                            ? 'bg-green-100 text-green-700'
+                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200',
                                     ]"
+                                    @click="selectedStatus = 'available'"
                                 >
                                     Available
                                 </button>
@@ -144,7 +152,9 @@ function goToPage(url) {
 
                     <div v-if="products.data.length === 0" class="text-center py-12">
                         <p class="text-gray-500">No products found.</p>
-                        <button @click="clearFilters" class="mt-2 text-sm text-indigo-600 hover:text-indigo-500">Clear filters</button>
+                        <button class="mt-2 text-sm text-indigo-600 hover:text-indigo-500" @click="clearFilters">
+                            Clear filters
+                        </button>
                     </div>
 
                     <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -157,28 +167,47 @@ function goToPage(url) {
                             <div class="aspect-[4/3] bg-gray-100 flex items-center justify-center">
                                 <img
                                     v-if="product.image"
-                                    :src="product.image.startsWith('http') ? product.image : `/storage/${product.image}`"
+                                    :src="
+                                        product.image.startsWith('http') ? product.image : `/storage/${product.image}`
+                                    "
                                     :alt="product.name"
                                     class="w-full h-full object-cover"
                                 />
-                                <svg v-else class="w-12 h-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                <svg
+                                    v-else
+                                    class="w-12 h-12 text-gray-300"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="1"
+                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                    />
                                 </svg>
                             </div>
                             <div class="p-4">
                                 <div class="flex items-start justify-between">
-                                    <h3 class="text-sm font-semibold text-gray-900 group-hover:text-indigo-600">{{ product.name }}</h3>
+                                    <h3 class="text-sm font-semibold text-gray-900 group-hover:text-indigo-600">
+                                        {{ product.name }}
+                                    </h3>
                                     <span
                                         :class="[
                                             'ml-2 px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0',
-                                            product.status === 'available' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                                            product.status === 'available'
+                                                ? 'bg-green-100 text-green-700'
+                                                : 'bg-red-100 text-red-700',
                                         ]"
                                     >
                                         {{ product.status }}
                                     </span>
                                 </div>
                                 <p class="mt-1 text-sm text-gray-500">{{ product.category_name }}</p>
-                                <p class="mt-2 text-lg font-bold text-indigo-600">${{ Number(product.price).toFixed(2) }}</p>
+                                <p class="mt-2 text-lg font-bold text-indigo-600">
+                                    ${{ Number(product.price).toFixed(2) }}
+                                </p>
                             </div>
                         </a>
                     </div>
@@ -187,13 +216,15 @@ function goToPage(url) {
                         <button
                             v-for="link in products.links"
                             :key="link.label"
-                            @click="goToPage(link.url)"
                             :disabled="!link.url"
                             :class="[
                                 'px-3 py-1.5 rounded text-sm',
-                                link.active ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
-                                !link.url ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                                link.active
+                                    ? 'bg-indigo-600 text-white'
+                                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
+                                !link.url ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
                             ]"
+                            @click="goToPage(link.url)"
                             v-html="link.label"
                         />
                     </div>

@@ -19,7 +19,7 @@ function submit() {
     <GuestLayout title="Login">
         <h2 class="text-2xl font-bold text-gray-900 mb-6">Login</h2>
 
-        <form @submit.prevent="submit" class="space-y-4">
+        <form class="space-y-4" @submit.prevent="submit">
             <div>
                 <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
                 <input
