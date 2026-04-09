@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\StockStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
@@ -11,6 +12,7 @@ use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 final class ProductsController extends Controller
 {
@@ -97,5 +99,54 @@ final class ProductsController extends Controller
         $product->delete();
 
         return response()->json(['message' => 'Product deleted']);
+    }
+
+    public function bulkDelete(Request $request): JsonResponse
+    {
+        /** @var array{ids: array<int, int>} $validated */
+        $validated = $request->validate([
+            'ids' => ['required', 'array'],
+            'ids.*' => ['required', 'integer', 'exists:products,id'],
+        ]);
+
+        $deleted = Product::whereIn('id', $validated['ids'])->delete();
+
+        return response()->json(['deleted' => $deleted]);
+    }
+
+    public function bulkUpdateStock(Request $request): JsonResponse
+    {
+        /** @var array{products: array<int, array{id: int, stock: int}>} $validated */
+        $validated = $request->validate([
+            'products' => ['required', 'array'],
+            'products.*.id' => ['required', 'integer', 'exists:products,id'],
+            'products.*.stock' => ['required', 'integer', 'min:0'],
+        ]);
+
+        $updated = 0;
+        foreach ($validated['products'] as $item) {
+            Product::where('id', $item['id'])->update(['stock' => $item['stock']]);
+            $updated++;
+        }
+
+        return response()->json(['updated' => $updated]);
+    }
+
+    public function bulkUpdateStatus(Request $request): JsonResponse
+    {
+        /** @var array{products: array<int, array{id: int, status: string}>} $validated */
+        $validated = $request->validate([
+            'products' => ['required', 'array'],
+            'products.*.id' => ['required', 'integer', 'exists:products,id'],
+            'products.*.status' => ['required', Rule::enum(StockStatus::class)],
+        ]);
+
+        $updated = 0;
+        foreach ($validated['products'] as $item) {
+            Product::where('id', $item['id'])->update(['status' => $item['status']]);
+            $updated++;
+        }
+
+        return response()->json(['updated' => $updated]);
     }
 }
