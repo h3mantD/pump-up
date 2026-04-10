@@ -8,7 +8,6 @@ use App\Ai\Agents\ProductAssistant;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Laravel\Ai\Responses\StreamableAgentResponse;
 
 final class ChatController extends Controller
 {
@@ -21,31 +20,6 @@ final class ChatController extends Controller
             'history.*.content' => ['required_with:history', 'string'],
         ]);
 
-        $agent = $this->buildAgent($request);
-        $response = $agent->prompt($request->string('message')->toString());
-
-        return response()->json([
-            'role' => 'assistant',
-            'content' => $response->text,
-        ]);
-    }
-
-    public function stream(Request $request): StreamableAgentResponse
-    {
-        $request->validate([
-            'message' => ['required', 'string'],
-            'history' => ['sometimes', 'array'],
-            'history.*.role' => ['required_with:history', 'string', 'in:user,assistant'],
-            'history.*.content' => ['required_with:history', 'string'],
-        ]);
-
-        $agent = $this->buildAgent($request);
-
-        return $agent->stream($request->string('message')->toString());
-    }
-
-    private function buildAgent(Request $request): ProductAssistant
-    {
         $agent = new ProductAssistant();
 
         /** @var array<array{role: string, content: string}> $history */
@@ -55,6 +29,11 @@ final class ChatController extends Controller
             $agent->withHistory($history);
         }
 
-        return $agent;
+        $response = $agent->prompt($request->string('message')->toString());
+
+        return response()->json([
+            'role' => 'assistant',
+            'content' => $response->text,
+        ]);
     }
 }
