@@ -1,11 +1,25 @@
 <script setup>
-import { ref, nextTick } from 'vue';
+import { ref, nextTick, onMounted, onUnmounted } from 'vue';
 
 const isOpen = ref(false);
 const message = ref('');
 const messages = ref([]);
 const loading = ref(false);
 const ttsLoading = ref(null);
+
+function handleEscape(e) {
+    if (e.key === 'Escape' && isOpen.value) {
+        isOpen.value = false;
+    }
+}
+
+onMounted(() => {
+    document.addEventListener('keydown', handleEscape);
+});
+
+onUnmounted(() => {
+    document.removeEventListener('keydown', handleEscape);
+});
 
 async function sendMessage() {
     const text = message.value.trim();
@@ -25,6 +39,10 @@ async function sendMessage() {
             },
             body: JSON.stringify({ message: text }),
         });
+
+        if (!res.ok) {
+            throw new Error(`Server error: ${res.status}`);
+        }
 
         const data = await res.json();
 
@@ -58,6 +76,11 @@ async function playTts(index) {
             },
             body: JSON.stringify({ text: msg.content }),
         });
+
+        if (!res.ok) {
+            ttsLoading.value = null;
+            return;
+        }
 
         const data = await res.json();
 
@@ -99,7 +122,8 @@ function handleKeydown(e) {
     <!-- Toggle Button -->
     <button
         v-if="!isOpen"
-        class="fixed bottom-6 right-6 w-14 h-14 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-500 flex items-center justify-center z-50 transition-transform hover:scale-105"
+        aria-label="Open chat assistant"
+        class="fixed bottom-4 right-4 w-14 h-14 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-500 flex items-center justify-center z-50 transition-transform hover:scale-105"
         @click="isOpen = true"
     >
         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -115,10 +139,12 @@ function handleKeydown(e) {
     <!-- Chat Panel -->
     <div
         v-if="isOpen"
-        class="fixed bottom-6 right-6 w-96 h-[500px] bg-white rounded-lg shadow-2xl flex flex-col z-50 border border-gray-200"
+        role="dialog"
+        aria-label="Pump Assistant chat"
+        class="fixed bottom-0 right-0 sm:bottom-4 sm:right-4 w-full sm:w-96 h-full sm:h-[500px] sm:rounded-lg bg-white shadow-2xl flex flex-col z-50 border border-gray-200"
     >
         <!-- Header -->
-        <div class="flex items-center justify-between px-4 py-3 bg-indigo-600 text-white rounded-t-lg">
+        <div class="flex items-center justify-between px-4 py-3 bg-indigo-600 text-white sm:rounded-t-lg">
             <div class="flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path
@@ -130,7 +156,7 @@ function handleKeydown(e) {
                 </svg>
                 <span class="font-semibold text-sm">Pump Assistant</span>
             </div>
-            <button class="text-white/80 hover:text-white" @click="isOpen = false">
+            <button aria-label="Close chat" class="text-white/80 hover:text-white" @click="isOpen = false">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -138,7 +164,7 @@ function handleKeydown(e) {
         </div>
 
         <!-- Messages -->
-        <div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-3">
+        <div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-3" aria-live="polite">
             <div v-if="messages.length === 0" class="text-center text-gray-400 text-sm mt-8">
                 <p>Ask me about gym equipment!</p>
                 <p class="mt-1 text-xs">I can help you find the right gear.</p>
@@ -159,6 +185,7 @@ function handleKeydown(e) {
                     <!-- TTS button for assistant messages -->
                     <button
                         v-if="msg.role === 'assistant'"
+                        :aria-label="ttsLoading === i ? 'Playing audio' : 'Listen to response'"
                         class="mt-1 flex items-center gap-1 text-xs opacity-60 hover:opacity-100 transition-opacity"
                         :disabled="ttsLoading !== null"
                         @click="playTts(i)"
@@ -214,7 +241,9 @@ function handleKeydown(e) {
         <!-- Input -->
         <div class="border-t border-gray-200 p-3">
             <div class="flex gap-2">
+                <label for="chat-input" class="sr-only">Message</label>
                 <input
+                    id="chat-input"
                     v-model="message"
                     type="text"
                     placeholder="Type a message..."
@@ -223,6 +252,7 @@ function handleKeydown(e) {
                     @keydown="handleKeydown"
                 />
                 <button
+                    aria-label="Send message"
                     class="rounded-md bg-indigo-600 px-3 py-2 text-white hover:bg-indigo-500 disabled:opacity-50"
                     :disabled="!message.trim() || loading"
                     @click="sendMessage"
