@@ -48,11 +48,16 @@ import PublicLayout from '@/Layouts/PublicLayout.vue';
                         >
                     </li>
                     <li>
-                        <a href="#tts" class="text-indigo-600 hover:text-indigo-500">5. Text-to-Speech (TTS)</a>
+                        <a href="#multi-turn" class="text-indigo-600 hover:text-indigo-500"
+                            >5. Multi-Turn Conversations</a
+                        >
+                    </li>
+                    <li>
+                        <a href="#tts" class="text-indigo-600 hover:text-indigo-500">6. Text-to-Speech (TTS)</a>
                     </li>
                     <li>
                         <a href="#architecture" class="text-indigo-600 hover:text-indigo-500"
-                            >6. Architecture Overview</a
+                            >7. Architecture Overview</a
                         >
                     </li>
                 </ol>
@@ -81,17 +86,25 @@ import PublicLayout from '@/Layouts/PublicLayout.vue';
                             string and sent to
                             <strong>OpenAI's text-embedding-3-small</strong> model, which returns a
                             <strong>1536-dimensional vector</strong>. This vector captures the semantic meaning of the
-                            product — "heavy dumbbell for strength training" and "50kg free weight" produce similar
-                            vectors even though they use different words.
+                            product. A <code class="bg-gray-100 px-1 rounded">ProductObserver</code> automatically
+                            dispatches a queued job whenever a product is created or updated, keeping embeddings fresh.
                         </p>
 
                         <div class="mt-6 bg-gray-900 rounded-lg p-6 text-sm overflow-x-auto">
-                            <p class="text-gray-400 mb-2">// How we generate embeddings (Laravel AI SDK)</p>
-                            <pre class="text-green-400"><code>$response = Embeddings::for([$text])
+                            <p class="text-gray-400 mb-2">
+                                // Queued embedding generation (GenerateProductEmbedding job)
+                            </p>
+                            <pre class="text-green-400"><code>$text = implode(' ', [
+    $this->product->name,
+    $this->product->description,
+    $this->product->category?->name,
+]);
+
+$response = Embeddings::for([$text])
     ->dimensions(1536)
     ->generate(Lab::OpenAI, 'text-embedding-3-small');
 
-$product->updateQuietly([
+$this->product->updateQuietly([
     'embedding' => $response->embeddings[0],
 ]);</code></pre>
                         </div>
@@ -102,7 +115,11 @@ $product->updateQuietly([
                                 ChromaDB or Pinecone), we store embeddings directly in PostgreSQL using the
                                 <code class="bg-indigo-100 px-1 rounded">pgvector</code> extension. This means one
                                 database for everything — no extra infrastructure, simpler deployments, and ACID
-                                transactions on your vectors.
+                                transactions on your vectors. Laravel provides native support with
+                                <code class="bg-indigo-100 px-1 rounded"
+                                    >$table->vector('embedding', dimensions: 1536)->index()</code
+                                >
+                                which auto-creates an HNSW index.
                             </p>
                         </div>
                     </div>
@@ -130,15 +147,16 @@ $product->updateQuietly([
                             <code class="bg-gray-100 px-1 rounded">whereVectorSimilarTo()</code>
                             which handles everything: it generates an embedding for your search query, computes cosine
                             similarity against stored vectors, filters by a minimum threshold, and returns results
-                            ordered by relevance.
+                            ordered by relevance. You can even pass a plain string — the SDK auto-generates the
+                            embedding.
                         </p>
 
                         <div class="mt-6 bg-gray-900 rounded-lg p-6 text-sm overflow-x-auto">
-                            <p class="text-gray-400 mb-2">// Similarity search in one line</p>
-                            <pre class="text-green-400"><code>$products = Product::similarTo('equipment for legs')
-    ->get();
+                            <p class="text-gray-400 mb-2">// Similarity search — exposed as a public API endpoint</p>
+                            <pre class="text-green-400"><code>// GET /api/v1/products/search?q=leg+equipment
+$products = Product::similarTo('equipment for legs')->get();
 
-// Internally uses:
+// The scope uses:
 // ->whereVectorSimilarTo('embedding', $text, minSimilarity: 0.4)
 // The query string is automatically converted to a vector!</code></pre>
                         </div>
@@ -191,8 +209,8 @@ $product->updateQuietly([
                                     >1</span
                                 >
                                 <span
-                                    >Uses <strong>similarity search</strong> to find products related to "arm muscles"
-                                    from the vector database</span
+                                    >The AI agent <strong>autonomously decides</strong> to use its SimilaritySearch tool
+                                    to find relevant products</span
                                 >
                             </li>
                             <li class="flex gap-3">
@@ -201,8 +219,8 @@ $product->updateQuietly([
                                     >2</span
                                 >
                                 <span
-                                    >Injects the matching products (with names, prices, descriptions) into the
-                                    <strong>system prompt</strong></span
+                                    >pgvector cosine similarity query returns matching products (EZ Curl Bar, Olympic
+                                    Barbell, etc.) with real data</span
                                 >
                             </li>
                             <li class="flex gap-3">
@@ -211,8 +229,8 @@ $product->updateQuietly([
                                     >3</span
                                 >
                                 <span
-                                    >The LLM generates a response using <strong>real product data</strong> — no
-                                    hallucination</span
+                                    >The LLM generates a response with <strong>clickable product links</strong>, prices,
+                                    stock info, and workout recommendations — all grounded in real data</span
                                 >
                             </li>
                         </ol>
@@ -222,7 +240,7 @@ $product->updateQuietly([
                                 <strong>Why RAG instead of fine-tuning?</strong> Fine-tuning trains the model on your
                                 data permanently, which is expensive and becomes stale. RAG retrieves fresh data at
                                 query time — when you add a new product, it's instantly searchable without retraining
-                                anything.
+                                anything. The ProductObserver automatically generates embeddings for new products.
                             </p>
                         </div>
                     </div>
@@ -247,28 +265,46 @@ $product->updateQuietly([
                         </p>
                         <p class="text-gray-600 leading-relaxed mt-4">
                             Pump's <code class="bg-gray-100 px-1 rounded">ProductAssistant</code> agent has access to a
-                            <strong>SimilaritySearch</strong> tool. When a user asks about products, the agent decides
-                            to use the tool, receives the results, and formulates a natural language response. When the
-                            user asks a general fitness question, the agent skips the tool entirely.
+                            <strong>SimilaritySearch</strong> tool and knows about all product categories. When it finds
+                            products, it includes <strong>clickable links</strong> to product detail pages and category
+                            filter URLs — the agent constructs these from product IDs and category data injected into
+                            its instructions.
                         </p>
 
                         <div class="mt-6 bg-gray-900 rounded-lg p-6 text-sm overflow-x-auto">
-                            <p class="text-gray-400 mb-2">// ProductAssistant agent definition</p>
+                            <p class="text-gray-400 mb-2">
+                                // ProductAssistant — agent with tools + conversation memory
+                            </p>
                             <pre class="text-green-400"><code>#[Provider(Lab::Groq)]
-class ProductAssistant implements Agent
+class ProductAssistant implements Agent, Conversational, HasTools
 {
     use Promptable;
 
     public function instructions(): string
     {
-        return 'You are a fitness expert for Pump...';
+        // Dynamic: injects current categories for filter URLs
+        $categories = Category::all()->map(...);
+        return "You are a fitness expert for Pump...
+                URL Patterns: /products/{id}, /products?category_id={id}
+                Categories: {$categories}";
     }
 
     public function tools(): iterable
     {
         return [
-            SimilaritySearch::usingModel(Product::class, 'embedding'),
+            SimilaritySearch::usingModel(
+                model: Product::class,
+                column: 'embedding',
+                minSimilarity: 0.4,
+                limit: 10,
+            ),
         ];
+    }
+
+    // Conversation memory for multi-turn context
+    public function messages(): iterable
+    {
+        return $this->conversationHistory;
     }
 }</code></pre>
                         </div>
@@ -278,8 +314,9 @@ class ProductAssistant implements Agent
                                 <h4 class="font-semibold text-gray-900 text-sm mb-2">User asks:</h4>
                                 <p class="text-sm text-gray-600 italic">"What equipment do you have for cardio?"</p>
                                 <p class="text-xs text-gray-400 mt-2">
-                                    Agent uses SimilaritySearch tool → retrieves treadmills, bikes, rowers → responds
-                                    with recommendations
+                                    Agent uses SimilaritySearch → finds treadmills, bikes, rowers → responds with linked
+                                    product names, prices, and a
+                                    <a href="/products?category_id=1" class="text-indigo-500">View All Cardio</a> link
                                 </p>
                             </div>
                             <div class="bg-white border border-gray-200 rounded-lg p-4">
@@ -293,12 +330,69 @@ class ProductAssistant implements Agent
                     </div>
                 </article>
 
-                <!-- 5. TTS -->
-                <article id="tts">
+                <!-- 5. Multi-Turn Conversations -->
+                <article id="multi-turn">
                     <div class="flex items-center gap-3 mb-4">
                         <span
                             class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-bold"
                             >5</span
+                        >
+                        <h2 class="text-2xl font-bold text-gray-900">Multi-Turn Conversations</h2>
+                    </div>
+
+                    <div class="prose prose-gray max-w-none">
+                        <p class="text-gray-600 leading-relaxed">
+                            A single-turn chatbot forgets everything after each message. Our
+                            <strong>multi-turn implementation</strong> sends the full conversation history with each
+                            request, so the agent can understand context like "show me something cheaper" or "tell me
+                            more about that one."
+                        </p>
+                        <p class="text-gray-600 leading-relaxed mt-4">
+                            The agent implements Laravel AI SDK's
+                            <code class="bg-gray-100 px-1 rounded">Conversational</code> interface. The frontend sends
+                            previous messages as a <code class="bg-gray-100 px-1 rounded">history</code> array, and the
+                            agent converts them into <code class="bg-gray-100 px-1 rounded">Message</code> objects that
+                            the LLM sees as conversation context.
+                        </p>
+
+                        <div class="mt-6 bg-gray-900 rounded-lg p-6 text-sm overflow-x-auto">
+                            <p class="text-gray-400 mb-2">// Frontend sends conversation history with each message</p>
+                            <pre class="text-green-400"><code>// Chat widget sends:
+{
+  "message": "Do you have something cheaper?",
+  "history": [
+    { "role": "user", "content": "What treadmills do you have?" },
+    { "role": "assistant", "content": "We have the ProForm Carbon..." },
+  ]
+}
+
+// Agent sees the full conversation and understands
+// "cheaper" refers to treadmills from the previous exchange</code></pre>
+                        </div>
+
+                        <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="bg-white border border-gray-200 rounded-lg p-3 text-center">
+                                <p class="text-2xl font-bold text-indigo-600">20</p>
+                                <p class="text-xs text-gray-500 mt-1">Max messages retained</p>
+                            </div>
+                            <div class="bg-white border border-gray-200 rounded-lg p-3 text-center">
+                                <p class="text-2xl font-bold text-indigo-600">0</p>
+                                <p class="text-xs text-gray-500 mt-1">Server-side storage needed</p>
+                            </div>
+                            <div class="bg-white border border-gray-200 rounded-lg p-3 text-center">
+                                <p class="text-2xl font-bold text-indigo-600">Stateless</p>
+                                <p class="text-xs text-gray-500 mt-1">No database for chat history</p>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- 6. TTS -->
+                <article id="tts">
+                    <div class="flex items-center gap-3 mb-4">
+                        <span
+                            class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-bold"
+                            >6</span
                         >
                         <h2 class="text-2xl font-bold text-gray-900">Text-to-Speech (TTS)</h2>
                     </div>
@@ -327,12 +421,12 @@ $path = $audio->storeAs('audio.mp3', 'public');</code></pre>
                     </div>
                 </article>
 
-                <!-- 6. Architecture -->
+                <!-- 7. Architecture -->
                 <article id="architecture">
                     <div class="flex items-center gap-3 mb-4">
                         <span
                             class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-bold"
-                            >6</span
+                            >7</span
                         >
                         <h2 class="text-2xl font-bold text-gray-900">Architecture Overview</h2>
                     </div>
@@ -360,19 +454,27 @@ $path = $audio->storeAs('audio.mp3', 'public');</code></pre>
                                     </div>
                                     <div>
                                         <span class="text-gray-500">LLM (Chat):</span>
-                                        <span class="ml-1 font-medium">Groq (Mixtral)</span>
+                                        <span class="ml-1 font-medium">Groq</span>
                                     </div>
                                     <div>
                                         <span class="text-gray-500">TTS:</span>
                                         <span class="ml-1 font-medium">ElevenLabs</span>
                                     </div>
                                     <div>
-                                        <span class="text-gray-500">Framework:</span>
+                                        <span class="text-gray-500">Backend:</span>
                                         <span class="ml-1 font-medium">Laravel 13 + AI SDK</span>
                                     </div>
                                     <div>
                                         <span class="text-gray-500">Frontend:</span>
-                                        <span class="ml-1 font-medium">Vue 3 + Inertia.js</span>
+                                        <span class="ml-1 font-medium">Vue 3 + Inertia.js + Tailwind</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">Admin:</span>
+                                        <span class="ml-1 font-medium">Filament v5</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">Quality:</span>
+                                        <span class="ml-1 font-medium">PHPStan + ESLint + 85 tests</span>
                                     </div>
                                 </div>
                             </div>
@@ -388,8 +490,9 @@ $path = $audio->storeAs('audio.mp3', 'public');</code></pre>
                                             >1</span
                                         >
                                         <span
-                                            ><strong>Product Created/Updated</strong> → Observer dispatches queued job →
-                                            Job calls OpenAI Embeddings API → Stores 1536-dim vector in PostgreSQL</span
+                                            ><strong>Product Created/Updated</strong> → ProductObserver dispatches
+                                            queued GenerateProductEmbedding job → Job calls OpenAI Embeddings API →
+                                            Stores 1536-dim vector in PostgreSQL (HNSW indexed)</span
                                         >
                                     </div>
                                     <div class="flex items-start gap-3">
@@ -398,10 +501,10 @@ $path = $audio->storeAs('audio.mp3', 'public');</code></pre>
                                             >2</span
                                         >
                                         <span
-                                            ><strong>User Sends Chat Message</strong> → ProductAssistant agent receives
-                                            it → Agent decides to use SimilaritySearch tool → pgvector cosine similarity
-                                            query → Agent gets relevant products → Generates natural language
-                                            response</span
+                                            ><strong>User Sends Chat Message</strong> → Frontend sends message +
+                                            conversation history → ProductAssistant agent receives it → Agent decides to
+                                            use SimilaritySearch tool → pgvector cosine query → Agent gets products with
+                                            IDs → Generates markdown response with clickable product links</span
                                         >
                                     </div>
                                     <div class="flex items-start gap-3">
@@ -410,9 +513,124 @@ $path = $audio->storeAs('audio.mp3', 'public');</code></pre>
                                             >3</span
                                         >
                                         <span
-                                            ><strong>User Clicks "Listen"</strong> → Response text sent to ElevenLabs →
-                                            Audio generated and stored → Browser plays MP3</span
+                                            ><strong>User Clicks "Listen"</strong> → Response text sent to ElevenLabs
+                                            via AI SDK → Audio generated and stored → Browser plays MP3 inline</span
                                         >
+                                    </div>
+                                    <div class="flex items-start gap-3">
+                                        <span
+                                            class="w-6 h-6 rounded bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold flex-shrink-0"
+                                            >4</span
+                                        >
+                                        <span
+                                            ><strong>Admin Manages Products</strong> → Filament CRUD at /admin → Create,
+                                            edit, delete products with image upload → Observer auto-generates new
+                                            embeddings → Instantly searchable by the chat agent</span
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                                <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                                    <h4 class="text-sm font-semibold text-gray-700">Chat Widget Features</h4>
+                                </div>
+                                <div class="p-4 grid grid-cols-2 gap-3 text-sm text-gray-600">
+                                    <div class="flex items-center gap-2">
+                                        <svg
+                                            class="w-4 h-4 text-green-500 flex-shrink-0"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M5 13l4 4L19 7"
+                                            />
+                                        </svg>
+                                        <span>Multi-turn conversation memory</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <svg
+                                            class="w-4 h-4 text-green-500 flex-shrink-0"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M5 13l4 4L19 7"
+                                            />
+                                        </svg>
+                                        <span>Markdown rendering (tables, links)</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <svg
+                                            class="w-4 h-4 text-green-500 flex-shrink-0"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M5 13l4 4L19 7"
+                                            />
+                                        </svg>
+                                        <span>Clickable product links in responses</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <svg
+                                            class="w-4 h-4 text-green-500 flex-shrink-0"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M5 13l4 4L19 7"
+                                            />
+                                        </svg>
+                                        <span>Text-to-speech on every response</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <svg
+                                            class="w-4 h-4 text-green-500 flex-shrink-0"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M5 13l4 4L19 7"
+                                            />
+                                        </svg>
+                                        <span>Quick prompt starter buttons</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <svg
+                                            class="w-4 h-4 text-green-500 flex-shrink-0"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M5 13l4 4L19 7"
+                                            />
+                                        </svg>
+                                        <span>Copy response to clipboard</span>
                                     </div>
                                 </div>
                             </div>
@@ -426,7 +644,7 @@ $path = $audio->storeAs('audio.mp3', 'public');</code></pre>
                 <h2 class="text-2xl font-bold text-white">Try it yourself</h2>
                 <p class="mt-2 text-indigo-200">
                     Click the chat bubble in the bottom-right corner to interact with the AI assistant. Ask about gym
-                    equipment and hit "Listen" to hear the response.
+                    equipment, follow up with "show me something cheaper", and hit "Listen" to hear the response.
                 </p>
                 <div class="mt-6 flex items-center justify-center gap-4">
                     <a
