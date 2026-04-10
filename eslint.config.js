@@ -19,6 +19,7 @@ export default [
                 Audio: 'readonly',
                 URL: 'readonly',
                 navigator: 'readonly',
+                TextDecoder: 'readonly',
             },
         },
         rules: {

@@ -60,40 +60,73 @@ async function sendMessage(text) {
     loading.value = true;
     await scrollToBottom();
 
-    try {
-        const history = buildHistory().slice(0, -1);
+    // Add empty assistant message that we'll stream into
+    const assistantMsg = { role: 'assistant', content: '', time: new Date() };
+    messages.value.push(assistantMsg);
+    const msgIndex = messages.value.length - 1;
 
-        const res = await fetch('/api/v1/groq/chat', {
+    try {
+        const history = buildHistory().slice(0, -2); // exclude both the user msg and empty assistant msg
+
+        const res = await fetch('/api/v1/groq/chat/stream', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                Accept: 'application/json',
+                Accept: 'text/event-stream',
                 'X-Requested-With': 'XMLHttpRequest',
             },
             body: JSON.stringify({ message: msgText, history }),
         });
 
-        const data = await res.json();
-
         if (!res.ok) {
-            messages.value.push({
-                role: 'assistant',
-                content: data.message || data.error || `Error: ${res.status}`,
-                time: new Date(),
-            });
-        } else {
-            messages.value.push({
-                role: 'assistant',
-                content: data.content || data.text || JSON.stringify(data),
-                time: new Date(),
-            });
+            const data = await res.json().catch(() => ({}));
+            messages.value[msgIndex].content = data.message || data.error || `Error: ${res.status}`;
+            loading.value = false;
+            return;
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+
+            // Parse SSE lines
+            const lines = buffer.split('\n');
+            buffer = lines.pop(); // keep incomplete line in buffer
+
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    const data = line.slice(6).trim();
+                    if (data === '[DONE]') continue;
+
+                    try {
+                        const parsed = JSON.parse(data);
+                        if (parsed.text) {
+                            messages.value[msgIndex].content += parsed.text;
+                            await scrollToBottom();
+                        }
+                    } catch {
+                        // Not JSON, might be raw text chunk
+                        if (data) {
+                            messages.value[msgIndex].content += data;
+                            await scrollToBottom();
+                        }
+                    }
+                }
+            }
+        }
+
+        // If no content was streamed, something went wrong
+        if (!messages.value[msgIndex].content) {
+            messages.value[msgIndex].content = 'No response received. Please try again.';
         }
     } catch (err) {
-        messages.value.push({
-            role: 'assistant',
-            content: `Connection error: ${err.message || 'Please try again.'}`,
-            time: new Date(),
-        });
+        messages.value[msgIndex].content = `Connection error: ${err.message || 'Please try again.'}`;
     }
 
     loading.value = false;
