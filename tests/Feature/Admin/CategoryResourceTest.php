@@ -13,17 +13,17 @@ final class CategoryResourceTest extends TestCase
 {
     use RefreshDatabase;
 
-    private User $user;
+    private User $admin;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
+        $this->admin = User::factory()->create(['is_admin' => true]);
     }
 
     public function test_admin_category_list_is_accessible(): void
     {
-        $response = $this->actingAs($this->user)
+        $response = $this->actingAs($this->admin)
             ->get('/admin/categories');
 
         $response->assertOk();
@@ -31,7 +31,7 @@ final class CategoryResourceTest extends TestCase
 
     public function test_admin_category_create_is_accessible(): void
     {
-        $response = $this->actingAs($this->user)
+        $response = $this->actingAs($this->admin)
             ->get('/admin/categories/create');
 
         $response->assertOk();
@@ -41,7 +41,7 @@ final class CategoryResourceTest extends TestCase
     {
         $category = Category::factory()->create();
 
-        $response = $this->actingAs($this->user)
+        $response = $this->actingAs($this->admin)
             ->get("/admin/categories/{$category->id}/edit");
 
         $response->assertOk();

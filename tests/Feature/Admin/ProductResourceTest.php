@@ -13,17 +13,17 @@ final class ProductResourceTest extends TestCase
 {
     use RefreshDatabase;
 
-    private User $user;
+    private User $admin;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
+        $this->admin = User::factory()->create(['is_admin' => true]);
     }
 
     public function test_admin_product_list_is_accessible(): void
     {
-        $response = $this->actingAs($this->user)
+        $response = $this->actingAs($this->admin)
             ->get('/admin/products');
 
         $response->assertOk();
@@ -31,7 +31,7 @@ final class ProductResourceTest extends TestCase
 
     public function test_admin_product_create_is_accessible(): void
     {
-        $response = $this->actingAs($this->user)
+        $response = $this->actingAs($this->admin)
             ->get('/admin/products/create');
 
         $response->assertOk();
@@ -41,7 +41,7 @@ final class ProductResourceTest extends TestCase
     {
         $product = Product::factory()->create();
 
-        $response = $this->actingAs($this->user)
+        $response = $this->actingAs($this->admin)
             ->get("/admin/products/{$product->id}/edit");
 
         $response->assertOk();
@@ -52,5 +52,15 @@ final class ProductResourceTest extends TestCase
         $response = $this->get('/admin/products');
 
         $response->assertRedirect();
+    }
+
+    public function test_non_admin_cannot_access_admin(): void
+    {
+        $user = User::factory()->create(['is_admin' => false]);
+
+        $response = $this->actingAs($user)
+            ->get('/admin/products');
+
+        $response->assertForbidden();
     }
 }
