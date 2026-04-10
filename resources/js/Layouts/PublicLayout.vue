@@ -2,6 +2,7 @@
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import ChatWidget from '@/Components/ChatWidget.vue';
+import FlashMessages from '@/Components/FlashMessages.vue';
 
 defineProps({
     title: String,
@@ -95,5 +96,6 @@ function logout() {
         </main>
 
         <ChatWidget />
+        <FlashMessages />
     </div>
 </template>
