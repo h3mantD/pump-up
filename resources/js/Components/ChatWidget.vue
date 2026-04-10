@@ -2,7 +2,7 @@
 import { ref, nextTick, onMounted, onUnmounted } from 'vue';
 import { marked } from 'marked';
 
-// Configure marked for safe output
+// Configure marked
 const renderer = new marked.Renderer();
 renderer.link = ({ href, text }) =>
     `<a href="${href}" target="_blank" rel="noopener" class="text-indigo-600 underline hover:text-indigo-500">${text}</a>`;
@@ -18,6 +18,14 @@ const message = ref('');
 const messages = ref([]);
 const loading = ref(false);
 const ttsLoading = ref(null);
+const copiedIndex = ref(null);
+
+const quickPrompts = [
+    'What cardio equipment do you have?',
+    'Show me free weights',
+    'Equipment under $100',
+    'What do you recommend for beginners?',
+];
 
 function renderMarkdown(text) {
     return marked.parse(text);
@@ -37,16 +45,24 @@ onUnmounted(() => {
     document.removeEventListener('keydown', handleEscape);
 });
 
-async function sendMessage() {
-    const text = message.value.trim();
-    if (!text || loading.value) return;
+function buildHistory() {
+    return messages.value
+        .filter((m) => m.role === 'user' || m.role === 'assistant')
+        .map((m) => ({ role: m.role, content: m.content }));
+}
 
-    messages.value.push({ role: 'user', content: text });
+async function sendMessage(text) {
+    const msgText = text || message.value.trim();
+    if (!msgText || loading.value) return;
+
+    messages.value.push({ role: 'user', content: msgText, time: new Date() });
     message.value = '';
     loading.value = true;
     await scrollToBottom();
 
     try {
+        const history = buildHistory().slice(0, -1);
+
         const res = await fetch('/api/v1/groq/chat', {
             method: 'POST',
             headers: {
@@ -54,7 +70,7 @@ async function sendMessage() {
                 Accept: 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
             },
-            body: JSON.stringify({ message: text }),
+            body: JSON.stringify({ message: msgText, history }),
         });
 
         const data = await res.json();
@@ -63,22 +79,44 @@ async function sendMessage() {
             messages.value.push({
                 role: 'assistant',
                 content: data.message || data.error || `Error: ${res.status}`,
+                time: new Date(),
             });
         } else {
             messages.value.push({
                 role: 'assistant',
                 content: data.content || data.text || JSON.stringify(data),
+                time: new Date(),
             });
         }
     } catch (err) {
         messages.value.push({
             role: 'assistant',
             content: `Connection error: ${err.message || 'Please try again.'}`,
+            time: new Date(),
         });
     }
 
     loading.value = false;
     await scrollToBottom();
+}
+
+async function copyMessage(index) {
+    const msg = messages.value[index];
+    if (!msg) return;
+
+    try {
+        await navigator.clipboard.writeText(msg.content);
+        copiedIndex.value = index;
+        setTimeout(() => {
+            copiedIndex.value = null;
+        }, 2000);
+    } catch {
+        // clipboard API not available
+    }
+}
+
+function clearChat() {
+    messages.value = [];
 }
 
 async function playTts(index) {
@@ -119,6 +157,11 @@ async function playTts(index) {
     } catch {
         ttsLoading.value = null;
     }
+}
+
+function formatTime(date) {
+    if (!date) return '';
+    return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
 const messagesContainer = ref(null);
@@ -176,20 +219,56 @@ function handleKeydown(e) {
                 </svg>
                 <span class="font-semibold text-sm">Pump Assistant</span>
             </div>
-            <button aria-label="Close chat" class="text-white/80 hover:text-white" @click="isOpen = false">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
+            <div class="flex items-center gap-2">
+                <button
+                    v-if="messages.length > 0"
+                    aria-label="Clear chat"
+                    class="text-white/60 hover:text-white"
+                    @click="clearChat"
+                >
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        />
+                    </svg>
+                </button>
+                <button aria-label="Close chat" class="text-white/80 hover:text-white" @click="isOpen = false">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12"
+                        />
+                    </svg>
+                </button>
+            </div>
         </div>
 
         <!-- Messages -->
         <div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-3" aria-live="polite">
-            <div v-if="messages.length === 0" class="text-center text-gray-400 text-sm mt-8">
-                <p>Ask me about gym equipment!</p>
-                <p class="mt-1 text-xs">I can help you find the right gear.</p>
+            <!-- Empty state with quick prompts -->
+            <div v-if="messages.length === 0 && !loading" class="mt-4">
+                <div class="text-center text-gray-400 text-sm mb-6">
+                    <p class="font-medium text-gray-600">Ask me about gym equipment!</p>
+                    <p class="mt-1 text-xs">I can help you find the right gear.</p>
+                </div>
+                <div class="space-y-2">
+                    <button
+                        v-for="prompt in quickPrompts"
+                        :key="prompt"
+                        class="w-full text-left px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-700 hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700 transition-colors"
+                        @click="sendMessage(prompt)"
+                    >
+                        {{ prompt }}
+                    </button>
+                </div>
             </div>
 
+            <!-- Messages -->
             <div
                 v-for="(msg, i) in messages"
                 :key="i"
@@ -207,38 +286,95 @@ function handleKeydown(e) {
                     <!-- Assistant: rendered markdown -->
                     <div v-else class="chat-markdown" v-html="renderMarkdown(msg.content)" />
 
-                    <!-- TTS button for assistant messages -->
-                    <button
+                    <!-- Action bar for assistant messages -->
+                    <div
                         v-if="msg.role === 'assistant'"
-                        :aria-label="ttsLoading === i ? 'Playing audio' : 'Listen to response'"
-                        class="mt-1 flex items-center gap-1 text-xs opacity-60 hover:opacity-100 transition-opacity"
-                        :disabled="ttsLoading !== null"
-                        @click="playTts(i)"
+                        class="mt-1.5 flex items-center gap-3 border-t border-gray-200/50 pt-1.5"
                     >
-                        <svg
-                            v-if="ttsLoading !== i"
-                            class="w-3.5 h-3.5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
+                        <!-- TTS -->
+                        <button
+                            :aria-label="ttsLoading === i ? 'Playing audio' : 'Listen to response'"
+                            class="flex items-center gap-1 text-xs opacity-50 hover:opacity-100 transition-opacity"
+                            :disabled="ttsLoading !== null"
+                            @click="playTts(i)"
                         >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M15.536 8.464a5 5 0 010 7.072M17.95 6.05a8 8 0 010 11.9M6.5 8.788v6.424a.5.5 0 00.757.429l4.986-3.212a.5.5 0 000-.858L7.257 8.359a.5.5 0 00-.757.429z"
-                            />
-                        </svg>
-                        <svg v-else class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-                            <path
-                                class="opacity-75"
-                                fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                            />
-                        </svg>
-                        <span>{{ ttsLoading === i ? 'Playing...' : 'Listen' }}</span>
-                    </button>
+                            <svg
+                                v-if="ttsLoading !== i"
+                                class="w-3.5 h-3.5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M15.536 8.464a5 5 0 010 7.072M17.95 6.05a8 8 0 010 11.9M6.5 8.788v6.424a.5.5 0 00.757.429l4.986-3.212a.5.5 0 000-.858L7.257 8.359a.5.5 0 00-.757.429z"
+                                />
+                            </svg>
+                            <svg v-else class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle
+                                    class="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    stroke-width="4"
+                                />
+                                <path
+                                    class="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                                />
+                            </svg>
+                            <span>{{ ttsLoading === i ? 'Playing...' : 'Listen' }}</span>
+                        </button>
+
+                        <!-- Copy -->
+                        <button
+                            :aria-label="copiedIndex === i ? 'Copied' : 'Copy response'"
+                            class="flex items-center gap-1 text-xs opacity-50 hover:opacity-100 transition-opacity"
+                            @click="copyMessage(i)"
+                        >
+                            <svg
+                                v-if="copiedIndex !== i"
+                                class="w-3.5 h-3.5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                                />
+                            </svg>
+                            <svg
+                                v-else
+                                class="w-3.5 h-3.5 text-green-600"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M5 13l4 4L19 7"
+                                />
+                            </svg>
+                            <span>{{ copiedIndex === i ? 'Copied!' : 'Copy' }}</span>
+                        </button>
+
+                        <!-- Timestamp -->
+                        <span v-if="msg.time" class="text-xs opacity-40 ml-auto">{{ formatTime(msg.time) }}</span>
+                    </div>
+
+                    <!-- Timestamp for user messages -->
+                    <div v-if="msg.role === 'user' && msg.time" class="mt-1 text-right">
+                        <span class="text-xs opacity-50">{{ formatTime(msg.time) }}</span>
+                    </div>
                 </div>
             </div>
 
@@ -280,7 +416,7 @@ function handleKeydown(e) {
                     aria-label="Send message"
                     class="rounded-md bg-indigo-600 px-3 py-2 text-white hover:bg-indigo-500 disabled:opacity-50"
                     :disabled="!message.trim() || loading"
-                    @click="sendMessage"
+                    @click="sendMessage()"
                 >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path
@@ -297,7 +433,6 @@ function handleKeydown(e) {
 </template>
 
 <style scoped>
-/* Markdown styling for chat assistant messages */
 .chat-markdown :deep(h1),
 .chat-markdown :deep(h2),
 .chat-markdown :deep(h3),

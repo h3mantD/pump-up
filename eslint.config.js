@@ -18,6 +18,7 @@ export default [
                 fetch: 'readonly',
                 Audio: 'readonly',
                 URL: 'readonly',
+                navigator: 'readonly',
             },
         },
         rules: {

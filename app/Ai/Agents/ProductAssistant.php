@@ -8,21 +8,47 @@ use App\Models\Category;
 use App\Models\Product;
 use Laravel\Ai\Attributes\Provider;
 use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Contracts\Conversational;
 use Laravel\Ai\Contracts\HasTools;
 use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Enums\Lab;
+use Laravel\Ai\Messages\Message;
 use Laravel\Ai\Promptable;
 use Laravel\Ai\Tools\SimilaritySearch;
 
 #[Provider(Lab::Groq)]
-final class ProductAssistant implements Agent, HasTools
+final class ProductAssistant implements Agent, Conversational, HasTools
 {
     use Promptable;
 
+    /** @var array<Message> */
+    private array $conversationHistory = [];
+
+    /**
+     * @param  array<array{role: string, content: string}>  $history
+     */
+    public function withHistory(array $history): self
+    {
+        $this->conversationHistory = array_map(
+            fn (array $msg): Message => new Message($msg['role'], $msg['content']),
+            array_slice($history, -20)
+        );
+
+        return $this;
+    }
+
+    /**
+     * @return array<Message>
+     */
+    public function messages(): iterable
+    {
+        return $this->conversationHistory;
+    }
+
     public function instructions(): string
     {
-        $categories = Category::pluck('name', 'id')
-            ->map(fn (string $name, int $id): string => "- {$name} (category_id={$id})")
+        $categories = Category::all()
+            ->map(fn (Category $cat): string => "- {$cat->name} (category_id={$cat->id})")
             ->implode("\n");
 
         return <<<INSTRUCTIONS

@@ -15,9 +15,21 @@ final class ChatController extends Controller
     {
         $request->validate([
             'message' => ['required', 'string'],
+            'history' => ['sometimes', 'array'],
+            'history.*.role' => ['required_with:history', 'string', 'in:user,assistant'],
+            'history.*.content' => ['required_with:history', 'string'],
         ]);
 
-        $response = new ProductAssistant()->prompt($request->string('message')->toString());
+        $agent = new ProductAssistant();
+
+        /** @var array<array{role: string, content: string}> $history */
+        $history = $request->input('history', []);
+
+        if (! empty($history)) {
+            $agent->withHistory($history);
+        }
+
+        $response = $agent->prompt($request->string('message')->toString());
 
         return response()->json([
             'role' => 'assistant',
