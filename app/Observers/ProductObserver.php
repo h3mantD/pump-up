@@ -11,7 +11,7 @@ final class ProductObserver
 {
     public function saved(Product $product): void
     {
-        if ($product->wasChanged(['name', 'description', 'category_id'])) {
+        if ($product->wasRecentlyCreated || $product->wasChanged(['name', 'description', 'category_id'])) {
             GenerateProductEmbedding::dispatch($product);
         }
     }

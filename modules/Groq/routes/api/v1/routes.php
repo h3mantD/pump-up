@@ -5,4 +5,4 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use Modules\Groq\Controllers\ChatController;
 
-Route::post('/chat', ChatController::class);
+Route::middleware('throttle:30,1')->post('/chat', ChatController::class);

@@ -9,7 +9,6 @@ use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
 
@@ -44,8 +43,8 @@ final class LoginController extends Controller
             return response()->json(['error' => $th->getMessage()], $th->getStatusCode());
         } catch (Throwable $th) {
             return response()->json(
-                ['error' => $th->getMessage()],
-                $th->getCode() ?: 500
+                ['error' => app()->isProduction() ? 'An unexpected error occurred.' : $th->getMessage()],
+                500
             );
         }
     }
@@ -55,7 +54,7 @@ final class LoginController extends Controller
         $user = User::create([
             'name' => $request->validated('name'),
             'email' => $request->validated('email'),
-            'password' => Hash::make($request->string('password')->value()),
+            'password' => $request->string('password')->value(),
         ]);
 
         $token = $user->createToken('auth-name')->plainTextToken;

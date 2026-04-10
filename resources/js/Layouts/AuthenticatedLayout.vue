@@ -9,7 +9,7 @@ defineProps({
 });
 
 const page = usePage();
-const user = page.props.auth.user;
+const user = page.props.auth?.user;
 const mobileMenuOpen = ref(false);
 
 function logout() {

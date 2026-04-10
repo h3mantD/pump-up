@@ -2,6 +2,7 @@
 import { ref, nextTick, onMounted, onUnmounted, computed } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 
 const page = usePage();
 const ttsEnabled = computed(() => page.props.features?.tts ?? false);
@@ -32,7 +33,14 @@ const quickPrompts = [
 ];
 
 function renderMarkdown(text) {
-    return marked.parse(text);
+    return DOMPurify.sanitize(marked.parse(text), {
+        ALLOWED_TAGS: [
+            'p', 'br', 'strong', 'em', 'a', 'code', 'pre', 'ul', 'ol', 'li',
+            'h1', 'h2', 'h3', 'h4', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
+            'blockquote', 'hr', 'span', 'div',
+        ],
+        ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
+    });
 }
 
 function handleEscape(e) {

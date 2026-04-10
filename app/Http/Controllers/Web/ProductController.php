@@ -49,10 +49,11 @@ final class ProductController extends Controller
             $relatedProducts = Product::similarTo(
                 $product->name . ' ' . $product->description,
                 4
-            )->where('id', '!=', $product->id)->get();
+            )->where('id', '!=', $product->id)->with('category')->get();
         } catch (Throwable) {
             $relatedProducts = Product::where('category_id', $product->category_id)
                 ->where('id', '!=', $product->id)
+                ->with('category')
                 ->limit(4)
                 ->get();
         }

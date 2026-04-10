@@ -18,7 +18,8 @@ final class GenerateProductEmbeddingsTest extends TestCase
     {
         Queue::fake();
 
-        Product::factory()->count(3)->create();
+        // Create without observer so only command jobs are counted
+        Product::withoutEvents(fn () => Product::factory()->count(3)->create());
 
         $this->artisan('products:generate-embeddings')
             ->assertSuccessful();
@@ -31,10 +32,12 @@ final class GenerateProductEmbeddingsTest extends TestCase
     {
         Queue::fake();
 
-        $product = Product::factory()->create();
-        $product->updateQuietly(['embedding' => [0.1, 0.2]]);
+        Product::withoutEvents(function (): void {
+            $product = Product::factory()->create();
+            $product->updateQuietly(['embedding' => [0.1, 0.2]]);
 
-        Product::factory()->count(2)->create();
+            Product::factory()->count(2)->create();
+        });
 
         $this->artisan('products:generate-embeddings --force')
             ->assertSuccessful();
@@ -46,10 +49,12 @@ final class GenerateProductEmbeddingsTest extends TestCase
     {
         Queue::fake();
 
-        $product = Product::factory()->create();
-        $product->updateQuietly(['embedding' => [0.1, 0.2]]);
+        Product::withoutEvents(function (): void {
+            $product = Product::factory()->create();
+            $product->updateQuietly(['embedding' => [0.1, 0.2]]);
 
-        Product::factory()->create();
+            Product::factory()->create();
+        });
 
         $this->artisan('products:generate-embeddings')
             ->assertSuccessful();
