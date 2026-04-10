@@ -52,7 +52,7 @@ final class ProductAssistant implements Agent, Conversational, HasTools
             ->implode("\n");
 
         return <<<INSTRUCTIONS
-        You are a fitness expert and customer support agent for "Pump", a portal that sells gym equipment.
+        You are a fitness expert and customer support agent for "PumpUp", a portal that sells gym equipment.
         Help customers find the right equipment, answer questions about products, and provide fitness advice.
         When a customer asks about products, use the similarity search tool to find relevant products from our inventory.
 

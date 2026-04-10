@@ -14,7 +14,7 @@ import PublicLayout from '@/Layouts/PublicLayout.vue';
                 </span>
                 <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight">
                     GenAI Concepts in<br />
-                    <span class="text-indigo-600">Pump</span>
+                    <span class="text-indigo-600">PumpUp</span>
                 </h1>
                 <p class="mt-4 text-lg text-gray-600 max-w-2xl">
                     This project demonstrates how to integrate modern AI capabilities into a Laravel e-commerce
@@ -82,7 +82,7 @@ import PublicLayout from '@/Layouts/PublicLayout.vue';
                             produce vectors that are close together in vector space.
                         </p>
                         <p class="text-gray-600 leading-relaxed mt-4">
-                            In Pump, every product's name, description, and category are combined into a single text
+                            In PumpUp, every product's name, description, and category are combined into a single text
                             string and sent to
                             <strong>OpenAI's text-embedding-3-small</strong> model, which returns a
                             <strong>1536-dimensional vector</strong>. This vector captures the semantic meaning of the
@@ -200,7 +200,7 @@ $products = Product::similarTo('equipment for legs')->get();
                             of the AI hallucinating product information, it works with your actual inventory.
                         </p>
                         <p class="text-gray-600 leading-relaxed mt-4">
-                            In Pump, when a user asks "What's good for building arm muscles?", the system:
+                            In PumpUp, when a user asks "What's good for building arm muscles?", the system:
                         </p>
                         <ol class="mt-4 space-y-3 text-gray-600">
                             <li class="flex gap-3">
@@ -264,7 +264,7 @@ $products = Product::similarTo('equipment for legs')->get();
                             conversation.
                         </p>
                         <p class="text-gray-600 leading-relaxed mt-4">
-                            Pump's <code class="bg-gray-100 px-1 rounded">ProductAssistant</code> agent has access to a
+                            PumpUp's <code class="bg-gray-100 px-1 rounded">ProductAssistant</code> agent has access to a
                             <strong>SimilaritySearch</strong> tool and knows about all product categories. When it finds
                             products, it includes <strong>clickable links</strong> to product detail pages and category
                             filter URLs — the agent constructs these from product IDs and category data injected into
@@ -284,7 +284,7 @@ class ProductAssistant implements Agent, Conversational, HasTools
     {
         // Dynamic: injects current categories for filter URLs
         $categories = Category::all()->map(...);
-        return "You are a fitness expert for Pump...
+        return "You are a fitness expert for PumpUp...
                 URL Patterns: /products/{id}, /products?category_id={id}
                 Categories: {$categories}";
     }
