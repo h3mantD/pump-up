@@ -5,7 +5,7 @@ import { marked } from 'marked';
 // Configure marked for safe output
 const renderer = new marked.Renderer();
 renderer.link = ({ href, text }) =>
-    `<a href="${href}" class="text-indigo-600 underline hover:text-indigo-500">${text}</a>`;
+    `<a href="${href}" target="_blank" rel="noopener" class="text-indigo-600 underline hover:text-indigo-500">${text}</a>`;
 
 marked.setOptions({
     breaks: true,
