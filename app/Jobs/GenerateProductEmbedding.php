@@ -10,11 +10,10 @@ use Illuminate\Foundation\Queue\Queueable;
 use Laravel\Ai\Embeddings;
 use Laravel\Ai\Enums\Lab;
 
+#[\Illuminate\Queue\Attributes\Tries(3)]
 final class GenerateProductEmbedding implements ShouldQueue
 {
     use Queueable;
-
-    public int $tries = 3;
 
     public function __construct(public Product $product) {}
 

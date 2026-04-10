@@ -17,6 +17,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
+use Override;
 
 final class CategoryResource extends Resource
 {
@@ -24,6 +25,7 @@ final class CategoryResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
 
+    #[Override]
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -33,7 +35,7 @@ final class CategoryResource extends Resource
                         ->required()
                         ->maxLength(255)
                         ->live(onBlur: true)
-                        ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state ?? ''))),
+                        ->afterStateUpdated(fn (Set $set, ?string $state): mixed => $set('slug', Str::slug($state ?? ''))),
                     Forms\Components\TextInput::make('slug')
                         ->required()
                         ->maxLength(255),
@@ -41,6 +43,7 @@ final class CategoryResource extends Resource
             ]);
     }
 
+    #[Override]
     public static function table(Table $table): Table
     {
         return $table
@@ -70,6 +73,7 @@ final class CategoryResource extends Resource
             ]);
     }
 
+    #[Override]
     public static function getPages(): array
     {
         return [

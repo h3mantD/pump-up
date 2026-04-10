@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Override;
 
 #[\Illuminate\Database\Eloquent\Attributes\Appends([
     'category_name',
@@ -48,7 +49,8 @@ final class Product extends Model
      * @param  Builder<Product>  $query
      * @return Builder<Product>
      */
-    public function scopeSimilarTo(Builder $query, string $text, int $limit = 30): Builder
+    #[\Illuminate\Database\Eloquent\Attributes\Scope]
+    protected function similarTo(Builder $query, string $text, int $limit = 30): Builder
     {
         return $query->whereVectorSimilarTo('embedding', $text, minSimilarity: 0.4)
             ->limit($limit);
@@ -57,6 +59,7 @@ final class Product extends Model
     /**
      * @return array<string, string>
      */
+    #[Override]
     protected function casts(): array
     {
         return [

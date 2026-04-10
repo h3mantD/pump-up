@@ -22,7 +22,7 @@ Route::middleware('guest')->group(function (): void {
 });
 
 // Root redirect: guests go to products, authenticated users go to dashboard
-Route::get('/', fn () => auth()->check() ? redirect('/dashboard') : redirect('/products'));
+Route::get('/', fn (): Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse => auth()->check() ? redirect('/dashboard') : redirect('/products'));
 
 Route::middleware('auth')->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

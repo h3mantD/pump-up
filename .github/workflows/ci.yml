@@ -30,7 +30,7 @@ jobs:
         run: php artisan key:generate
 
       - name: Install NPM dependencies
-        run: npm ci
+        run: npm install
 
       - name: ESLint
         run: npm run lint

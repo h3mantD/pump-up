@@ -19,6 +19,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Override;
 
 final class ProductResource extends Resource
 {
@@ -26,6 +27,7 @@ final class ProductResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingBag;
 
+    #[Override]
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -52,7 +54,7 @@ final class ProductResource extends Resource
                         Forms\Components\Select::make('status')
                             ->required()
                             ->options(collect(StockStatus::cases())->mapWithKeys(
-                                fn (StockStatus $status) => [$status->value => ucfirst(str_replace('_', ' ', $status->value))]
+                                fn (StockStatus $status): array => [$status->value => ucfirst(str_replace('_', ' ', $status->value))]
                             )),
                         Forms\Components\Select::make('category_id')
                             ->label('Category')
@@ -69,6 +71,7 @@ final class ProductResource extends Resource
             ]);
     }
 
+    #[Override]
     public static function table(Table $table): Table
     {
         return $table
@@ -105,7 +108,7 @@ final class ProductResource extends Resource
                     ->options(Category::pluck('name', 'id')),
                 Tables\Filters\SelectFilter::make('status')
                     ->options(collect(StockStatus::cases())->mapWithKeys(
-                        fn (StockStatus $status) => [$status->value => ucfirst(str_replace('_', ' ', $status->value))]
+                        fn (StockStatus $status): array => [$status->value => ucfirst(str_replace('_', ' ', $status->value))]
                     )),
                 Tables\Filters\Filter::make('low_stock')
                     ->query(fn (Builder $query) => $query->where('stock', '<', 10))
@@ -122,6 +125,7 @@ final class ProductResource extends Resource
             ]);
     }
 
+    #[Override]
     public static function getPages(): array
     {
         return [
