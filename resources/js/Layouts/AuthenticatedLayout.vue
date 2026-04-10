@@ -37,6 +37,8 @@ function logout() {
 
                     <div class="flex items-center sm:hidden">
                         <button
+                            :aria-label="mobileMenuOpen ? 'Close menu' : 'Open menu'"
+                            :aria-expanded="mobileMenuOpen"
                             class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
                             @click="mobileMenuOpen = !mobileMenuOpen"
                         >

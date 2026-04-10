@@ -53,6 +53,9 @@ function logout() {
 
                     <div class="flex items-center sm:hidden">
                         <button
+                            :aria-label="mobileMenuOpen ? 'Close menu' : 'Open menu'"
+                            aria-controls="mobile-menu"
+                            :aria-expanded="mobileMenuOpen"
                             class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
                             @click="mobileMenuOpen = !mobileMenuOpen"
                         >
@@ -77,7 +80,7 @@ function logout() {
                 </div>
             </div>
 
-            <div v-if="mobileMenuOpen" class="sm:hidden border-t border-gray-200 py-3 px-4 space-y-2">
+            <div v-if="mobileMenuOpen" id="mobile-menu" class="sm:hidden border-t border-gray-200 py-3 px-4 space-y-2">
                 <a href="/products" class="block text-sm font-medium text-gray-700">Products</a>
                 <template v-if="user">
                     <a href="/dashboard" class="block text-sm text-gray-700">Dashboard</a>

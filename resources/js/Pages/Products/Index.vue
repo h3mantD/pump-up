@@ -347,11 +347,23 @@ function goToPage(url) {
                         </a>
                     </div>
 
-                    <div v-if="products.last_page > 1" class="mt-8 flex justify-center gap-2">
+                    <nav
+                        v-if="products.last_page > 1"
+                        aria-label="Product pagination"
+                        class="mt-8 flex justify-center gap-2"
+                    >
                         <button
                             v-for="link in products.links"
                             :key="link.label"
                             :disabled="!link.url"
+                            :aria-label="
+                                link.label.includes('&')
+                                    ? link.label.includes('laquo')
+                                        ? 'Previous page'
+                                        : 'Next page'
+                                    : `Page ${link.label}`
+                            "
+                            :aria-current="link.active ? 'page' : undefined"
                             :class="[
                                 'px-3 py-1.5 rounded text-sm',
                                 link.active
@@ -362,7 +374,7 @@ function goToPage(url) {
                             @click="goToPage(link.url)"
                             v-html="link.label"
                         />
-                    </div>
+                    </nav>
                 </div>
             </div>
         </div>

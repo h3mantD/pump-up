@@ -91,10 +91,16 @@ function goToPage(url) {
                     <div v-for="review in reviews.data" :key="review.id" class="bg-white rounded-lg shadow p-6">
                         <div class="flex items-center justify-between mb-2">
                             <h3 v-if="review.title" class="font-semibold text-gray-900">{{ review.title }}</h3>
-                            <div v-if="review.rating" class="flex items-center gap-1">
+                            <div
+                                v-if="review.rating"
+                                class="flex items-center gap-1"
+                                role="img"
+                                :aria-label="`${review.rating} out of 5 stars`"
+                            >
                                 <svg
                                     v-for="star in 5"
                                     :key="star"
+                                    aria-hidden="true"
                                     class="w-4 h-4"
                                     :class="star <= review.rating ? 'text-yellow-400' : 'text-gray-200'"
                                     fill="currentColor"
@@ -109,11 +115,23 @@ function goToPage(url) {
                         <p class="text-sm text-gray-600">{{ review.review }}</p>
                     </div>
 
-                    <div v-if="reviews.last_page > 1" class="flex justify-center gap-2 mt-4">
+                    <nav
+                        v-if="reviews.last_page > 1"
+                        aria-label="Review pagination"
+                        class="flex justify-center gap-2 mt-4"
+                    >
                         <button
                             v-for="link in reviews.links"
                             :key="link.label"
                             :disabled="!link.url"
+                            :aria-label="
+                                link.label.includes('&')
+                                    ? link.label.includes('laquo')
+                                        ? 'Previous page'
+                                        : 'Next page'
+                                    : `Page ${link.label}`
+                            "
+                            :aria-current="link.active ? 'page' : undefined"
                             :class="[
                                 'px-3 py-1.5 rounded text-sm',
                                 link.active
@@ -124,7 +142,7 @@ function goToPage(url) {
                             @click="goToPage(link.url)"
                             v-html="link.label"
                         />
-                    </div>
+                    </nav>
                 </div>
             </div>
 
