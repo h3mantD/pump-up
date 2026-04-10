@@ -3,9 +3,14 @@ import { ref, nextTick, onMounted, onUnmounted } from 'vue';
 import { marked } from 'marked';
 
 // Configure marked for safe output
+const renderer = new marked.Renderer();
+renderer.link = ({ href, text }) =>
+    `<a href="${href}" class="text-indigo-600 underline hover:text-indigo-500">${text}</a>`;
+
 marked.setOptions({
     breaks: true,
     gfm: true,
+    renderer,
 });
 
 const isOpen = ref(false);
@@ -200,11 +205,7 @@ function handleKeydown(e) {
                     <p v-if="msg.role === 'user'" class="whitespace-pre-wrap">{{ msg.content }}</p>
 
                     <!-- Assistant: rendered markdown -->
-                    <div
-                        v-else
-                        class="chat-markdown"
-                        v-html="renderMarkdown(msg.content)"
-                    />
+                    <div v-else class="chat-markdown" v-html="renderMarkdown(msg.content)" />
 
                     <!-- TTS button for assistant messages -->
                     <button
