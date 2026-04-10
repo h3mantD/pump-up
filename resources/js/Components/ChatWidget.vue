@@ -1,11 +1,22 @@
 <script setup>
 import { ref, nextTick, onMounted, onUnmounted } from 'vue';
+import { marked } from 'marked';
+
+// Configure marked for safe output
+marked.setOptions({
+    breaks: true,
+    gfm: true,
+});
 
 const isOpen = ref(false);
 const message = ref('');
 const messages = ref([]);
 const loading = ref(false);
 const ttsLoading = ref(null);
+
+function renderMarkdown(text) {
+    return marked.parse(text);
+}
 
 function handleEscape(e) {
     if (e.key === 'Escape' && isOpen.value) {
@@ -145,7 +156,7 @@ function handleKeydown(e) {
         v-if="isOpen"
         role="dialog"
         aria-label="Pump Assistant chat"
-        class="fixed bottom-0 right-0 sm:bottom-4 sm:right-4 w-full sm:w-96 h-full sm:h-[500px] sm:rounded-lg bg-white shadow-2xl flex flex-col z-50 border border-gray-200"
+        class="fixed bottom-0 right-0 sm:bottom-4 sm:right-4 w-full sm:w-[28rem] h-full sm:h-[600px] sm:rounded-lg bg-white shadow-2xl flex flex-col z-50 border border-gray-200"
     >
         <!-- Header -->
         <div class="flex items-center justify-between px-4 py-3 bg-indigo-600 text-white sm:rounded-t-lg">
@@ -181,11 +192,20 @@ function handleKeydown(e) {
             >
                 <div
                     :class="[
-                        'max-w-[80%] rounded-lg px-3 py-2 text-sm',
+                        'max-w-[90%] rounded-lg px-3 py-2 text-sm',
                         msg.role === 'user' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-800',
                     ]"
                 >
-                    <p class="whitespace-pre-wrap">{{ msg.content }}</p>
+                    <!-- User: plain text -->
+                    <p v-if="msg.role === 'user'" class="whitespace-pre-wrap">{{ msg.content }}</p>
+
+                    <!-- Assistant: rendered markdown -->
+                    <div
+                        v-else
+                        class="chat-markdown"
+                        v-html="renderMarkdown(msg.content)"
+                    />
+
                     <!-- TTS button for assistant messages -->
                     <button
                         v-if="msg.role === 'assistant'"
@@ -274,3 +294,93 @@ function handleKeydown(e) {
         </div>
     </div>
 </template>
+
+<style scoped>
+/* Markdown styling for chat assistant messages */
+.chat-markdown :deep(h1),
+.chat-markdown :deep(h2),
+.chat-markdown :deep(h3),
+.chat-markdown :deep(h4) {
+    font-weight: 700;
+    margin-top: 0.75rem;
+    margin-bottom: 0.25rem;
+}
+.chat-markdown :deep(h3) {
+    font-size: 0.875rem;
+}
+.chat-markdown :deep(p) {
+    margin-bottom: 0.5rem;
+}
+.chat-markdown :deep(p:last-child) {
+    margin-bottom: 0;
+}
+.chat-markdown :deep(ul),
+.chat-markdown :deep(ol) {
+    padding-left: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+.chat-markdown :deep(ul) {
+    list-style-type: disc;
+}
+.chat-markdown :deep(ol) {
+    list-style-type: decimal;
+}
+.chat-markdown :deep(li) {
+    margin-bottom: 0.125rem;
+}
+.chat-markdown :deep(code) {
+    background-color: rgba(0, 0, 0, 0.06);
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-size: 0.8em;
+}
+.chat-markdown :deep(pre) {
+    background-color: #1f2937;
+    color: #e5e7eb;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    overflow-x: auto;
+    margin-bottom: 0.5rem;
+    font-size: 0.75rem;
+    line-height: 1.5;
+}
+.chat-markdown :deep(pre code) {
+    background: none;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
+}
+.chat-markdown :deep(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0.5rem;
+    font-size: 0.75rem;
+}
+.chat-markdown :deep(th),
+.chat-markdown :deep(td) {
+    border: 1px solid #d1d5db;
+    padding: 0.25rem 0.5rem;
+    text-align: left;
+}
+.chat-markdown :deep(th) {
+    background-color: rgba(0, 0, 0, 0.04);
+    font-weight: 600;
+}
+.chat-markdown :deep(strong) {
+    font-weight: 600;
+}
+.chat-markdown :deep(em) {
+    font-style: italic;
+}
+.chat-markdown :deep(blockquote) {
+    border-left: 3px solid #d1d5db;
+    padding-left: 0.75rem;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+}
+.chat-markdown :deep(hr) {
+    border: none;
+    border-top: 1px solid #e5e7eb;
+    margin: 0.5rem 0;
+}
+</style>
