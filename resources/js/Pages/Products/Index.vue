@@ -1,7 +1,7 @@
 <script setup>
 import PublicLayout from '@/Layouts/PublicLayout.vue';
 import { router } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
+import { ref, watch, onUnmounted } from 'vue';
 
 const props = defineProps({
     products: Object,
@@ -13,7 +13,12 @@ const search = ref(props.filters?.name || '');
 const selectedCategory = ref(props.filters?.category_id || '');
 const selectedStatus = ref(props.filters?.status || '');
 
+const mobileFiltersOpen = ref(false);
 let searchTimeout = null;
+
+onUnmounted(() => {
+    clearTimeout(searchTimeout);
+});
 
 function applyFilters() {
     const params = {};
@@ -141,13 +146,143 @@ function goToPage(url) {
                         <span class="text-sm text-gray-500">{{ products.total }} products</span>
                     </div>
 
-                    <div class="md:hidden mb-4">
+                    <!-- Mobile: search + filter button -->
+                    <div class="md:hidden mb-4 flex gap-2">
                         <input
                             v-model="search"
                             type="text"
                             placeholder="Search products..."
-                            class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            class="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                         />
+                        <button
+                            aria-label="Open filters"
+                            class="relative rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                            @click="mobileFiltersOpen = true"
+                        >
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                                />
+                            </svg>
+                            <span
+                                v-if="selectedCategory || selectedStatus"
+                                class="absolute -top-1 -right-1 w-4 h-4 bg-indigo-600 text-white text-xs rounded-full flex items-center justify-center"
+                            >
+                                {{ (selectedCategory ? 1 : 0) + (selectedStatus ? 1 : 0) }}
+                            </span>
+                        </button>
+                    </div>
+
+                    <!-- Mobile filter drawer -->
+                    <div v-if="mobileFiltersOpen" class="fixed inset-0 z-40 md:hidden">
+                        <div class="fixed inset-0 bg-black/25" @click="mobileFiltersOpen = false" />
+                        <div class="fixed inset-y-0 right-0 w-full max-w-xs bg-white shadow-xl p-6 overflow-y-auto">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-lg font-semibold text-gray-900">Filters</h3>
+                                <button
+                                    aria-label="Close filters"
+                                    class="text-gray-400 hover:text-gray-500"
+                                    @click="mobileFiltersOpen = false"
+                                >
+                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12"
+                                        />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <!-- Category -->
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                                <ul class="space-y-1">
+                                    <li>
+                                        <button
+                                            :class="[
+                                                'w-full text-left px-3 py-1.5 rounded text-sm',
+                                                !selectedCategory
+                                                    ? 'bg-indigo-50 text-indigo-700 font-medium'
+                                                    : 'text-gray-600 hover:bg-gray-50',
+                                            ]"
+                                            @click="
+                                                selectedCategory = '';
+                                                mobileFiltersOpen = false;
+                                            "
+                                        >
+                                            All Categories
+                                        </button>
+                                    </li>
+                                    <li v-for="category in categories" :key="category.id">
+                                        <button
+                                            :class="[
+                                                'w-full text-left px-3 py-1.5 rounded text-sm',
+                                                selectedCategory == category.id
+                                                    ? 'bg-indigo-50 text-indigo-700 font-medium'
+                                                    : 'text-gray-600 hover:bg-gray-50',
+                                            ]"
+                                            @click="
+                                                selectedCategory = category.id;
+                                                mobileFiltersOpen = false;
+                                            "
+                                        >
+                                            {{ category.name }}
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Status -->
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                                <div class="flex gap-2">
+                                    <button
+                                        :class="[
+                                            'px-3 py-1 rounded-full text-xs font-medium',
+                                            !selectedStatus
+                                                ? 'bg-indigo-100 text-indigo-700'
+                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200',
+                                        ]"
+                                        @click="
+                                            selectedStatus = '';
+                                            mobileFiltersOpen = false;
+                                        "
+                                    >
+                                        All
+                                    </button>
+                                    <button
+                                        :class="[
+                                            'px-3 py-1 rounded-full text-xs font-medium',
+                                            selectedStatus === 'available'
+                                                ? 'bg-green-100 text-green-700'
+                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200',
+                                        ]"
+                                        @click="
+                                            selectedStatus = 'available';
+                                            mobileFiltersOpen = false;
+                                        "
+                                    >
+                                        Available
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button
+                                v-if="selectedCategory || selectedStatus"
+                                class="w-full rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                                @click="
+                                    clearFilters();
+                                    mobileFiltersOpen = false;
+                                "
+                            >
+                                Clear all filters
+                            </button>
+                        </div>
                     </div>
 
                     <div v-if="products.data.length === 0" class="text-center py-12">
