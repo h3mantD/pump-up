@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 
+// Docs
+Route::get('/docs', fn () => Inertia\Inertia::render('Docs'))->name('docs');
+
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);

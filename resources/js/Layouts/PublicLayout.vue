@@ -31,6 +31,9 @@ function logout() {
                             class="hidden sm:block text-sm font-medium text-gray-700 hover:text-gray-900"
                             >Products</a
                         >
+                        <a href="/docs" class="hidden sm:block text-sm font-medium text-gray-700 hover:text-gray-900"
+                            >Docs</a
+                        >
                     </div>
 
                     <div class="hidden sm:flex sm:items-center sm:gap-4">
@@ -82,6 +85,7 @@ function logout() {
 
             <div v-if="mobileMenuOpen" id="mobile-menu" class="sm:hidden border-t border-gray-200 py-3 px-4 space-y-2">
                 <a href="/products" class="block text-sm font-medium text-gray-700">Products</a>
+                <a href="/docs" class="block text-sm font-medium text-gray-700">Docs</a>
                 <template v-if="user">
                     <a href="/dashboard" class="block text-sm text-gray-700">Dashboard</a>
                     <div class="text-sm text-gray-500">{{ user.name }}</div>
