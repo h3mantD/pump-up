@@ -17,5 +17,8 @@ abstract class TestCase extends BaseTestCase
 
         // Prevent real API calls when observer dispatches embedding jobs
         Embeddings::fake();
+
+        // Disable Inertia page file existence check in CI (no built assets)
+        config()->set('inertia.testing.ensure_pages_exist', false);
     }
 }
