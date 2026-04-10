@@ -264,11 +264,11 @@ $products = Product::similarTo('equipment for legs')->get();
                             conversation.
                         </p>
                         <p class="text-gray-600 leading-relaxed mt-4">
-                            PumpUp's <code class="bg-gray-100 px-1 rounded">ProductAssistant</code> agent has access to a
-                            <strong>SimilaritySearch</strong> tool and knows about all product categories. When it finds
-                            products, it includes <strong>clickable links</strong> to product detail pages and category
-                            filter URLs — the agent constructs these from product IDs and category data injected into
-                            its instructions.
+                            PumpUp's <code class="bg-gray-100 px-1 rounded">ProductAssistant</code> agent has access to
+                            a <strong>SimilaritySearch</strong> tool and knows about all product categories. When it
+                            finds products, it includes <strong>clickable links</strong> to product detail pages and
+                            category filter URLs — the agent constructs these from product IDs and category data
+                            injected into its instructions.
                         </p>
 
                         <div class="mt-6 bg-gray-900 rounded-lg p-6 text-sm overflow-x-auto">
