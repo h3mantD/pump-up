@@ -32,8 +32,12 @@ final class ProductAssistant implements Agent, HasTools
     public function tools(): iterable
     {
         return [
-            SimilaritySearch::usingModel(Product::class, 'embedding')
-                ->withDescription('Search gym equipment products by similarity to a query.'),
+            SimilaritySearch::usingModel(
+                model: Product::class,
+                column: 'embedding',
+                minSimilarity: 0.4,
+                limit: 10,
+            )->withDescription('Search gym equipment products by similarity to a query.'),
         ];
     }
 }
