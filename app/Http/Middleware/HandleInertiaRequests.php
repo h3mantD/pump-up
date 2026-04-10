@@ -29,6 +29,9 @@ final class HandleInertiaRequests extends Middleware
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
             ],
+            'features' => [
+                'tts' => ! empty(config('ai.providers.eleven.key')),
+            ],
         ];
     }
 }

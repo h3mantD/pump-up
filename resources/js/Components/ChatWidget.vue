@@ -1,6 +1,10 @@
 <script setup>
-import { ref, nextTick, onMounted, onUnmounted } from 'vue';
+import { ref, nextTick, onMounted, onUnmounted, computed } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 import { marked } from 'marked';
+
+const page = usePage();
+const ttsEnabled = computed(() => page.props.features?.tts ?? false);
 
 // Configure marked
 const renderer = new marked.Renderer();
@@ -291,8 +295,9 @@ function handleKeydown(e) {
                         v-if="msg.role === 'assistant'"
                         class="mt-1.5 flex items-center gap-3 border-t border-gray-200/50 pt-1.5"
                     >
-                        <!-- TTS -->
+                        <!-- TTS (only shown when ElevenLabs API key is configured) -->
                         <button
+                            v-if="ttsEnabled"
                             :aria-label="ttsLoading === i ? 'Playing audio' : 'Listen to response'"
                             class="flex items-center gap-1 text-xs opacity-50 hover:opacity-100 transition-opacity"
                             :disabled="ttsLoading !== null"
