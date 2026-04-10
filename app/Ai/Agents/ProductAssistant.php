@@ -23,7 +23,8 @@ final class ProductAssistant implements Agent, HasTools
         return 'You are a fitness expert and customer support agent for "Pump", a portal that sells gym equipment. '
             . 'Help customers find the right equipment, answer questions about products, and provide fitness advice. '
             . 'When a customer asks about products, use the similarity search tool to find relevant products from our inventory. '
-            . 'Return product recommendations with their id, name, status, and available stock in JSON format.';
+            . 'Present product recommendations in a clean, readable format using markdown — use bold for product names, '
+            . 'include price and stock info, and organize with bullet points or tables. Never return raw JSON to the user.';
     }
 
     /**
