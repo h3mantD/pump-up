@@ -106,4 +106,27 @@ final class AuthPageTest extends TestCase
 
         $response->assertRedirect();
     }
+
+    public function test_root_redirects_guests_to_products(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertRedirect('/products');
+    }
+
+    public function test_root_redirects_authenticated_users_to_dashboard(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get('/');
+
+        $response->assertRedirect('/dashboard');
+    }
+
+    public function test_404_returns_error_page(): void
+    {
+        $response = $this->get('/nonexistent-page');
+
+        $response->assertStatus(404);
+    }
 }
