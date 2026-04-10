@@ -36,24 +36,28 @@ async function sendMessage() {
             headers: {
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
             },
             body: JSON.stringify({ message: text }),
         });
 
-        if (!res.ok) {
-            throw new Error(`Server error: ${res.status}`);
-        }
-
         const data = await res.json();
 
+        if (!res.ok) {
+            messages.value.push({
+                role: 'assistant',
+                content: data.message || data.error || `Error: ${res.status}`,
+            });
+        } else {
+            messages.value.push({
+                role: 'assistant',
+                content: data.content || data.text || JSON.stringify(data),
+            });
+        }
+    } catch (err) {
         messages.value.push({
             role: 'assistant',
-            content: data.content || 'Sorry, I could not process that.',
-        });
-    } catch {
-        messages.value.push({
-            role: 'assistant',
-            content: 'Something went wrong. Please try again.',
+            content: `Connection error: ${err.message || 'Please try again.'}`,
         });
     }
 
